@@ -23,48 +23,214 @@ this.interactionDOMElement.addEventListener("touchcancel",this.onPointerCancel,!
 e.setBlendMode(t.blendMode),t.drawMode===h.default.DRAW_MODES.TRIANGLE_MESH?this._renderTriangleMesh(t):this._renderTriangles(t);},t.prototype._renderTriangleMesh=function(t){for(var e=t.vertices.length/2,r=0;r<e-2;r++){var n=2*r;this._renderDrawTriangle(t,n,n+2,n+4);}},t.prototype._renderTriangles=function(t){for(var e=t.indices,r=e.length,n=0;n<r;n+=3){var i=2*e[n],o=2*e[n+1],s=2*e[n+2];this._renderDrawTriangle(t,i,o,s);}},t.prototype._renderDrawTriangle=function(t,e,r,n){var i=this.renderer.context,o=t.uvs,s=t.vertices,a=t._texture;if(a.valid){var u=a.baseTexture,h=u.source,l=u.width,c=u.height,d=void 0,f=void 0,p=void 0,v=void 0,y=void 0,g=void 0;if(t.uploadUvTransform){var m=t._uvTransform.mapCoord;d=(o[e]*m.a+o[e+1]*m.c+m.tx)*u.width,f=(o[r]*m.a+o[r+1]*m.c+m.tx)*u.width,p=(o[n]*m.a+o[n+1]*m.c+m.tx)*u.width,v=(o[e]*m.b+o[e+1]*m.d+m.ty)*u.height,y=(o[r]*m.b+o[r+1]*m.d+m.ty)*u.height,g=(o[n]*m.b+o[n+1]*m.d+m.ty)*u.height;}else d=o[e]*u.width,f=o[r]*u.width,p=o[n]*u.width,v=o[e+1]*u.height,y=o[r+1]*u.height,g=o[n+1]*u.height;var _=s[e],b=s[r],x=s[n],T=s[e+1],w=s[r+1],E=s[n+1];if(t.canvasPadding>0){var S=t.canvasPadding/t.worldTransform.a,O=t.canvasPadding/t.worldTransform.d,P=(_+b+x)/3,M=(T+w+E)/3,C=_-P,R=T-M,A=Math.sqrt(C*C+R*R);_=P+C/A*(A+S),T=M+R/A*(A+O),C=b-P,R=w-M,A=Math.sqrt(C*C+R*R),b=P+C/A*(A+S),w=M+R/A*(A+O),C=x-P,R=E-M,A=Math.sqrt(C*C+R*R),x=P+C/A*(A+S),E=M+R/A*(A+O);}i.save(),i.beginPath(),i.moveTo(_,T),i.lineTo(b,w),i.lineTo(x,E),i.closePath(),i.clip();var I=d*y+v*p+f*g-y*p-v*f-d*g,D=_*y+v*x+b*g-y*x-v*b-_*g,L=d*b+_*p+f*x-b*p-_*f-d*x,F=d*y*x+v*b*p+_*f*g-_*y*p-v*f*x-d*b*g,N=T*y+v*E+w*g-y*E-v*w-T*g,k=d*w+T*p+f*E-w*p-T*f-d*E,j=d*y*E+v*w*p+T*f*g-T*y*p-v*f*E-d*w*g;i.transform(D/I,N/I,L/I,k/I,F/I,j/I),i.drawImage(h,0,0,l*u.resolution,c*u.resolution,0,0,l,c),i.restore();}},t.prototype.renderMeshFlat=function(t){var e=this.renderer.context,r=t.vertices,n=r.length/2;e.beginPath();for(var i=1;i<n-2;++i){var o=2*i,s=r[o],a=r[o+1],u=r[o+2],h=r[o+3],l=r[o+4],c=r[o+5];e.moveTo(s,a),e.lineTo(u,h),e.lineTo(l,c);}e.fillStyle="#FF0000",e.fill(),e.closePath();},t.prototype.destroy=function(){this.renderer=null;},t}();r.default=l,a.CanvasRenderer.registerPlugin("mesh",l);},{"../../core":63,"../Mesh":163}],168:[function(t,e,r){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}r.__esModule=!0;var i=t("./Mesh");Object.defineProperty(r,"Mesh",{enumerable:!0,get:function(){return n(i).default}});var o=t("./webgl/MeshRenderer");Object.defineProperty(r,"MeshRenderer",{enumerable:!0,get:function(){return n(o).default}});var s=t("./canvas/CanvasMeshRenderer");Object.defineProperty(r,"CanvasMeshRenderer",{enumerable:!0,get:function(){return n(s).default}});var a=t("./Plane");Object.defineProperty(r,"Plane",{enumerable:!0,get:function(){return n(a).default}});var u=t("./NineSlicePlane");Object.defineProperty(r,"NineSlicePlane",{enumerable:!0,get:function(){return n(u).default}});var h=t("./Rope");Object.defineProperty(r,"Rope",{enumerable:!0,get:function(){return n(h).default}});},{"./Mesh":163,"./NineSlicePlane":164,"./Plane":165,"./Rope":166,"./canvas/CanvasMeshRenderer":167,"./webgl/MeshRenderer":169}],169:[function(t,e,r){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}function i(t){if(t&&t.__esModule)return t;var e={};if(null!=t)for(var r in t)Object.prototype.hasOwnProperty.call(t,r)&&(e[r]=t[r]);return e.default=t,e}function o(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function s(t,e){if(!t)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!e||"object"!=typeof e&&"function"!=typeof e?t:e}function a(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function, not "+typeof e);t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,enumerable:!1,writable:!0,configurable:!0}}),e&&(Object.setPrototypeOf?Object.setPrototypeOf(t,e):t.__proto__=e);}r.__esModule=!0;var u=t("../../core"),h=i(u),l=t("pixi-gl-core"),c=n(l),d=t("../Mesh"),f=n(d),p=(t("path"),h.Matrix.IDENTITY),v=function(t){function e(r){o(this,e);var n=s(this,t.call(this,r));return n.shader=null,n}return a(e,t),e.prototype.onContextChange=function(){var t=this.renderer.gl;this.shader=new h.Shader(t,"attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\nuniform mat3 translationMatrix;\nuniform mat3 uTransform;\n\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n\n    vTextureCoord = (uTransform * vec3(aTextureCoord, 1.0)).xy;\n}\n","varying vec2 vTextureCoord;\nuniform float alpha;\nuniform vec3 tint;\n\nuniform sampler2D uSampler;\n\nvoid main(void)\n{\n    gl_FragColor = texture2D(uSampler, vTextureCoord) * vec4(tint * alpha, alpha);\n}\n");},e.prototype.render=function(t){var e=this.renderer,r=e.gl,n=t._texture;if(n.valid){var i=t._glDatas[e.CONTEXT_UID];i||(e.bindVao(null),i={shader:this.shader,vertexBuffer:c.default.GLBuffer.createVertexBuffer(r,t.vertices,r.STREAM_DRAW),uvBuffer:c.default.GLBuffer.createVertexBuffer(r,t.uvs,r.STREAM_DRAW),indexBuffer:c.default.GLBuffer.createIndexBuffer(r,t.indices,r.STATIC_DRAW),vao:null,dirty:t.dirty,indexDirty:t.indexDirty},i.vao=new c.default.VertexArrayObject(r).addIndex(i.indexBuffer).addAttribute(i.vertexBuffer,i.shader.attributes.aVertexPosition,r.FLOAT,!1,8,0).addAttribute(i.uvBuffer,i.shader.attributes.aTextureCoord,r.FLOAT,!1,8,0),t._glDatas[e.CONTEXT_UID]=i),e.bindVao(i.vao),t.dirty!==i.dirty&&(i.dirty=t.dirty,i.uvBuffer.upload(t.uvs)),t.indexDirty!==i.indexDirty&&(i.indexDirty=t.indexDirty,i.indexBuffer.upload(t.indices)),i.vertexBuffer.upload(t.vertices),e.bindShader(i.shader),i.shader.uniforms.uSampler=e.bindTexture(n),e.state.setBlendMode(t.blendMode),i.shader.uniforms.uTransform&&(t.uploadUvTransform?i.shader.uniforms.uTransform=t._uvTransform.mapCoord.toArray(!0):i.shader.uniforms.uTransform=p.toArray(!0)),i.shader.uniforms.translationMatrix=t.worldTransform.toArray(!0),i.shader.uniforms.alpha=t.worldAlpha,i.shader.uniforms.tint=t.tintRgb;var o=t.drawMode===f.default.DRAW_MODES.TRIANGLE_MESH?r.TRIANGLE_STRIP:r.TRIANGLES;i.vao.draw(o,t.indices.length,0);}},e}(h.ObjectRenderer);r.default=v,h.WebGLRenderer.registerPlugin("mesh",v);},{"../../core":63,"../Mesh":163,path:22,"pixi-gl-core":12}],170:[function(t,e,r){"use strict";function n(t){if(t&&t.__esModule)return t;var e={};if(null!=t)for(var r in t)Object.prototype.hasOwnProperty.call(t,r)&&(e[r]=t[r]);return e.default=t,e}function i(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function o(t,e){if(!t)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!e||"object"!=typeof e&&"function"!=typeof e?t:e}function s(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function, not "+typeof e);t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,enumerable:!1,writable:!0,configurable:!0}}),e&&(Object.setPrototypeOf?Object.setPrototypeOf(t,e):t.__proto__=e);}r.__esModule=!0;var a=t("../core"),u=n(a),h=function(t){function e(){var r=arguments.length>0&&void 0!==arguments[0]?arguments[0]:1500,n=arguments[1],s=arguments.length>2&&void 0!==arguments[2]?arguments[2]:16384;i(this,e);var a=o(this,t.call(this)),h=16384;return s>h&&(s=h),s>r&&(s=r),a._properties=[!1,!0,!1,!1,!1],a._maxSize=r,a._batchSize=s,a._glBuffers={},a._bufferToUpdate=0,a.interactiveChildren=!1,a.blendMode=u.BLEND_MODES.NORMAL,a.roundPixels=!0,a.baseTexture=null,a.setProperties(n),a}return s(e,t),e.prototype.setProperties=function(t){t&&(this._properties[0]="scale"in t?!!t.scale:this._properties[0],this._properties[1]="position"in t?!!t.position:this._properties[1],this._properties[2]="rotation"in t?!!t.rotation:this._properties[2],this._properties[3]="uvs"in t?!!t.uvs:this._properties[3],this._properties[4]="alpha"in t?!!t.alpha:this._properties[4]);},e.prototype.updateTransform=function(){this.displayObjectUpdateTransform();},e.prototype.renderWebGL=function(t){var e=this;this.visible&&!(this.worldAlpha<=0)&&this.children.length&&this.renderable&&(this.baseTexture||(this.baseTexture=this.children[0]._texture.baseTexture,this.baseTexture.hasLoaded||this.baseTexture.once("update",function(){return e.onChildrenChange(0)})),t.setObjectRenderer(t.plugins.particle),t.plugins.particle.render(this));},e.prototype.onChildrenChange=function(t){var e=Math.floor(t/this._batchSize);e<this._bufferToUpdate&&(this._bufferToUpdate=e);},e.prototype.renderCanvas=function(t){if(this.visible&&!(this.worldAlpha<=0)&&this.children.length&&this.renderable){var e=t.context,r=this.worldTransform,n=!0,i=0,o=0,s=0,a=0,u=t.blendModes[this.blendMode];u!==e.globalCompositeOperation&&(e.globalCompositeOperation=u),e.globalAlpha=this.worldAlpha,this.displayObjectUpdateTransform();for(var h=0;h<this.children.length;++h){var l=this.children[h];if(l.visible){var c=l._texture.frame;if(e.globalAlpha=this.worldAlpha*l.alpha,l.rotation%(2*Math.PI)===0)n&&(e.setTransform(r.a,r.b,r.c,r.d,r.tx*t.resolution,r.ty*t.resolution),n=!1),i=l.anchor.x*(-c.width*l.scale.x)+l.position.x+.5,o=l.anchor.y*(-c.height*l.scale.y)+l.position.y+.5,s=c.width*l.scale.x,a=c.height*l.scale.y;else{n||(n=!0),l.displayObjectUpdateTransform();var d=l.worldTransform;t.roundPixels?e.setTransform(d.a,d.b,d.c,d.d,d.tx*t.resolution|0,d.ty*t.resolution|0):e.setTransform(d.a,d.b,d.c,d.d,d.tx*t.resolution,d.ty*t.resolution),i=l.anchor.x*-c.width+.5,o=l.anchor.y*-c.height+.5,s=c.width,a=c.height;}var f=l._texture.baseTexture.resolution;e.drawImage(l._texture.baseTexture.source,c.x*f,c.y*f,c.width*f,c.height*f,i*t.resolution,o*t.resolution,s*t.resolution,a*t.resolution);}}}},e.prototype.destroy=function(e){if(t.prototype.destroy.call(this,e),this._buffers)for(var r=0;r<this._buffers.length;++r)this._buffers[r].destroy();this._properties=null,this._buffers=null;},e}(u.Container);r.default=h;},{"../core":63}],171:[function(t,e,r){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}r.__esModule=!0;var i=t("./ParticleContainer");Object.defineProperty(r,"ParticleContainer",{enumerable:!0,get:function(){return n(i).default}});var o=t("./webgl/ParticleRenderer");Object.defineProperty(r,"ParticleRenderer",{enumerable:!0,get:function(){return n(o).default}});},{"./ParticleContainer":170,"./webgl/ParticleRenderer":173}],172:[function(t,e,r){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}function i(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}r.__esModule=!0;var o=t("pixi-gl-core"),s=n(o),a=t("../../core/utils/createIndicesForQuads"),u=n(a),h=function(){function t(e,r,n,o){i(this,t),this.gl=e,this.vertSize=2,this.vertByteSize=4*this.vertSize,this.size=o,this.dynamicProperties=[],this.staticProperties=[];for(var s=0;s<r.length;++s){var a=r[s];a={attribute:a.attribute,size:a.size,uploadFunction:a.uploadFunction,offset:a.offset},n[s]?this.dynamicProperties.push(a):this.staticProperties.push(a);}this.staticStride=0,this.staticBuffer=null,this.staticData=null,this.dynamicStride=0,this.dynamicBuffer=null,this.dynamicData=null,this.initBuffers();}return t.prototype.initBuffers=function(){var t=this.gl,e=0;this.indices=(0,u.default)(this.size),this.indexBuffer=s.default.GLBuffer.createIndexBuffer(t,this.indices,t.STATIC_DRAW),this.dynamicStride=0;for(var r=0;r<this.dynamicProperties.length;++r){var n=this.dynamicProperties[r];n.offset=e,e+=n.size,this.dynamicStride+=n.size;}this.dynamicData=new Float32Array(this.size*this.dynamicStride*4),this.dynamicBuffer=s.default.GLBuffer.createVertexBuffer(t,this.dynamicData,t.STREAM_DRAW);var i=0;this.staticStride=0;for(var o=0;o<this.staticProperties.length;++o){var a=this.staticProperties[o];a.offset=i,i+=a.size,this.staticStride+=a.size;}this.staticData=new Float32Array(this.size*this.staticStride*4),this.staticBuffer=s.default.GLBuffer.createVertexBuffer(t,this.staticData,t.STATIC_DRAW),this.vao=new s.default.VertexArrayObject(t).addIndex(this.indexBuffer);for(var h=0;h<this.dynamicProperties.length;++h){var l=this.dynamicProperties[h];this.vao.addAttribute(this.dynamicBuffer,l.attribute,t.FLOAT,!1,4*this.dynamicStride,4*l.offset);}for(var c=0;c<this.staticProperties.length;++c){var d=this.staticProperties[c];this.vao.addAttribute(this.staticBuffer,d.attribute,t.FLOAT,!1,4*this.staticStride,4*d.offset);}},t.prototype.uploadDynamic=function(t,e,r){for(var n=0;n<this.dynamicProperties.length;n++){var i=this.dynamicProperties[n];i.uploadFunction(t,e,r,this.dynamicData,this.dynamicStride,i.offset);}this.dynamicBuffer.upload();},t.prototype.uploadStatic=function(t,e,r){for(var n=0;n<this.staticProperties.length;n++){var i=this.staticProperties[n];i.uploadFunction(t,e,r,this.staticData,this.staticStride,i.offset);}this.staticBuffer.upload();},t.prototype.destroy=function(){this.dynamicProperties=null,this.dynamicData=null,this.dynamicBuffer.destroy(),this.staticProperties=null,this.staticData=null,this.staticBuffer.destroy();},t}();r.default=h;},{"../../core/utils/createIndicesForQuads":120,"pixi-gl-core":12}],173:[function(t,e,r){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}function i(t){if(t&&t.__esModule)return t;var e={};if(null!=t)for(var r in t)Object.prototype.hasOwnProperty.call(t,r)&&(e[r]=t[r]);return e.default=t,e}function o(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function s(t,e){if(!t)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!e||"object"!=typeof e&&"function"!=typeof e?t:e}function a(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function, not "+typeof e);t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,enumerable:!1,writable:!0,configurable:!0}}),e&&(Object.setPrototypeOf?Object.setPrototypeOf(t,e):t.__proto__=e);}r.__esModule=!0;var u=t("../../core"),h=i(u),l=t("./ParticleShader"),c=n(l),d=t("./ParticleBuffer"),f=n(d),p=function(t){function e(r){o(this,e);var n=s(this,t.call(this,r));return n.shader=null,n.indexBuffer=null,n.properties=null,n.tempMatrix=new h.Matrix,n.CONTEXT_UID=0,n}return a(e,t),e.prototype.onContextChange=function(){var t=this.renderer.gl;this.CONTEXT_UID=this.renderer.CONTEXT_UID,this.shader=new c.default(t),this.properties=[{attribute:this.shader.attributes.aVertexPosition,size:2,uploadFunction:this.uploadVertices,offset:0},{attribute:this.shader.attributes.aPositionCoord,size:2,uploadFunction:this.uploadPosition,offset:0},{attribute:this.shader.attributes.aRotation,size:1,uploadFunction:this.uploadRotation,offset:0},{attribute:this.shader.attributes.aTextureCoord,size:2,uploadFunction:this.uploadUvs,offset:0},{attribute:this.shader.attributes.aColor,size:1,uploadFunction:this.uploadAlpha,offset:0}];},e.prototype.start=function(){this.renderer.bindShader(this.shader);},e.prototype.render=function(t){var e=t.children,r=t._maxSize,n=t._batchSize,i=this.renderer,o=e.length;if(0!==o){o>r&&(o=r);var s=t._glBuffers[i.CONTEXT_UID];s||(s=t._glBuffers[i.CONTEXT_UID]=this.generateBuffers(t)),this.renderer.setBlendMode(t.blendMode);var a=i.gl,u=t.worldTransform.copy(this.tempMatrix);u.prepend(i._activeRenderTarget.projectionMatrix),this.shader.uniforms.projectionMatrix=u.toArray(!0),this.shader.uniforms.uAlpha=t.worldAlpha;var h=e[0]._texture.baseTexture;this.shader.uniforms.uSampler=i.bindTexture(h);for(var l=0,c=0;l<o;l+=n,c+=1){var d=o-l;d>n&&(d=n);var f=s[c];f.uploadDynamic(e,l,d),t._bufferToUpdate===c&&(f.uploadStatic(e,l,d),t._bufferToUpdate=c+1),i.bindVao(f.vao),f.vao.draw(a.TRIANGLES,6*d);}}},e.prototype.generateBuffers=function(t){for(var e=this.renderer.gl,r=[],n=t._maxSize,i=t._batchSize,o=t._properties,s=0;s<n;s+=i)r.push(new f.default(e,this.properties,o,i));return r},e.prototype.uploadVertices=function(t,e,r,n,i,o){for(var s=0,a=0,u=0,h=0,l=0;l<r;++l){var c=t[e+l],d=c._texture,f=c.scale.x,p=c.scale.y,v=d.trim,y=d.orig;v?(a=v.x-c.anchor.x*y.width,s=a+v.width,h=v.y-c.anchor.y*y.height,u=h+v.height):(s=y.width*(1-c.anchor.x),a=y.width*-c.anchor.x,u=y.height*(1-c.anchor.y),h=y.height*-c.anchor.y),n[o]=a*f,n[o+1]=h*p,n[o+i]=s*f,n[o+i+1]=h*p,n[o+2*i]=s*f,n[o+2*i+1]=u*p,n[o+3*i]=a*f,n[o+3*i+1]=u*p,o+=4*i;}},e.prototype.uploadPosition=function(t,e,r,n,i,o){for(var s=0;s<r;s++){var a=t[e+s].position;n[o]=a.x,n[o+1]=a.y,n[o+i]=a.x,n[o+i+1]=a.y,n[o+2*i]=a.x,n[o+2*i+1]=a.y,n[o+3*i]=a.x,n[o+3*i+1]=a.y,o+=4*i;}},e.prototype.uploadRotation=function(t,e,r,n,i,o){for(var s=0;s<r;s++){var a=t[e+s].rotation;n[o]=a,n[o+i]=a,n[o+2*i]=a,n[o+3*i]=a,o+=4*i;}},e.prototype.uploadUvs=function(t,e,r,n,i,o){for(var s=0;s<r;++s){var a=t[e+s]._texture._uvs;a?(n[o]=a.x0,n[o+1]=a.y0,n[o+i]=a.x1,n[o+i+1]=a.y1,n[o+2*i]=a.x2,n[o+2*i+1]=a.y2,n[o+3*i]=a.x3,n[o+3*i+1]=a.y3,o+=4*i):(n[o]=0,n[o+1]=0,n[o+i]=0,n[o+i+1]=0,n[o+2*i]=0,n[o+2*i+1]=0,n[o+3*i]=0,n[o+3*i+1]=0,o+=4*i);}},e.prototype.uploadAlpha=function(t,e,r,n,i,o){for(var s=0;s<r;s++){var a=t[e+s].alpha;n[o]=a,n[o+i]=a,n[o+2*i]=a,n[o+3*i]=a,o+=4*i;}},e.prototype.destroy=function(){this.renderer.gl&&this.renderer.gl.deleteBuffer(this.indexBuffer),t.prototype.destroy.call(this),this.shader.destroy(),this.indices=null,this.tempMatrix=null;},e}(h.ObjectRenderer);r.default=p,h.WebGLRenderer.registerPlugin("particle",p);},{"../../core":63,"./ParticleBuffer":172,"./ParticleShader":174}],174:[function(t,e,r){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}function i(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function o(t,e){if(!t)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!e||"object"!=typeof e&&"function"!=typeof e?t:e}function s(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function, not "+typeof e);t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,enumerable:!1,writable:!0,configurable:!0}}),e&&(Object.setPrototypeOf?Object.setPrototypeOf(t,e):t.__proto__=e);}r.__esModule=!0;var a=t("../../core/Shader"),u=n(a),h=function(t){function e(r){return i(this,e),o(this,t.call(this,r,["attribute vec2 aVertexPosition;","attribute vec2 aTextureCoord;","attribute float aColor;","attribute vec2 aPositionCoord;","attribute vec2 aScale;","attribute float aRotation;","uniform mat3 projectionMatrix;","varying vec2 vTextureCoord;","varying float vColor;","void main(void){","   vec2 v = aVertexPosition;","   v.x = (aVertexPosition.x) * cos(aRotation) - (aVertexPosition.y) * sin(aRotation);","   v.y = (aVertexPosition.x) * sin(aRotation) + (aVertexPosition.y) * cos(aRotation);","   v = v + aPositionCoord;","   gl_Position = vec4((projectionMatrix * vec3(v, 1.0)).xy, 0.0, 1.0);","   vTextureCoord = aTextureCoord;","   vColor = aColor;","}"].join("\n"),["varying vec2 vTextureCoord;","varying float vColor;","uniform sampler2D uSampler;","uniform float uAlpha;","void main(void){","  vec4 color = texture2D(uSampler, vTextureCoord) * vColor * uAlpha;","  if (color.a == 0.0) discard;","  gl_FragColor = color;","}"].join("\n")))}return s(e,t),e}(u.default);r.default=h;},{"../../core/Shader":42}],175:[function(t,e,r){"use strict";Math.sign||(Math.sign=function(t){return t=Number(t),0===t||isNaN(t)?t:t>0?1:-1});},{}],176:[function(t,e,r){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}var i=t("object-assign"),o=n(i);Object.assign||(Object.assign=o.default);},{"object-assign":5}],177:[function(t,e,r){"use strict";t("./Object.assign"),t("./requestAnimationFrame"),t("./Math.sign"),window.ArrayBuffer||(window.ArrayBuffer=Array),window.Float32Array||(window.Float32Array=Array),window.Uint32Array||(window.Uint32Array=Array),window.Uint16Array||(window.Uint16Array=Array);},{"./Math.sign":175,"./Object.assign":176,"./requestAnimationFrame":178}],178:[function(t,e,r){(function(t){"use strict";var e=16;Date.now&&Date.prototype.getTime||(Date.now=function(){return(new Date).getTime()}),t.performance&&t.performance.now||!function(){var e=Date.now();t.performance||(t.performance={}),t.performance.now=function(){return Date.now()-e};}();for(var r=Date.now(),n=["ms","moz","webkit","o"],i=0;i<n.length&&!t.requestAnimationFrame;++i){var o=n[i];t.requestAnimationFrame=t[o+"RequestAnimationFrame"],t.cancelAnimationFrame=t[o+"CancelAnimationFrame"]||t[o+"CancelRequestAnimationFrame"];}t.requestAnimationFrame||(t.requestAnimationFrame=function(t){if("function"!=typeof t)throw new TypeError(t+"is not a function");var n=Date.now(),i=e+r-n;return i<0&&(i=0),r=n,setTimeout(function(){r=Date.now(),t(performance.now());},i)}),t.cancelAnimationFrame||(t.cancelAnimationFrame=function(t){return clearTimeout(t)});}).call(this,"undefined"!=typeof global?global:"undefined"!=typeof self?self:"undefined"!=typeof window?window:{});},{}],179:[function(t,e,r){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}function i(t){if(t&&t.__esModule)return t;var e={};if(null!=t)for(var r in t)Object.prototype.hasOwnProperty.call(t,r)&&(e[r]=t[r]);return e.default=t,e}function o(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function s(t,e){var r=!1;if(t&&t._textures&&t._textures.length)for(var n=0;n<t._textures.length;n++)if(t._textures[n]instanceof p.Texture){var i=t._textures[n].baseTexture;e.indexOf(i)===-1&&(e.push(i),r=!0);}return r}function a(t,e){return t instanceof p.BaseTexture&&(e.indexOf(t)===-1&&e.push(t),!0)}function u(t,e){if(t._texture&&t._texture instanceof p.Texture){var r=t._texture.baseTexture;return e.indexOf(r)===-1&&e.push(r),!0}return!1}function h(t,e){return e instanceof p.Text&&(e.updateText(!0),!0)}function l(t,e){if(e instanceof p.TextStyle){var r=p.Text.getFontStyle(e);return p.Text.fontPropertiesCache[r]||p.Text.calculateFontProperties(r),!0}return!1}function c(t,e){if(t instanceof p.Text){e.indexOf(t.style)===-1&&e.push(t.style),e.indexOf(t)===-1&&e.push(t);var r=t._texture.baseTexture;return e.indexOf(r)===-1&&e.push(r),!0}return!1}function d(t,e){return t instanceof p.TextStyle&&(e.indexOf(t)===-1&&e.push(t),!0)}r.__esModule=!0;var f=t("../core"),p=i(f),v=t("./limiters/CountLimiter"),y=n(v),g=p.ticker.shared;p.settings.UPLOADS_PER_FRAME=4;var m=function(){function t(e){var r=this;o(this,t),this.limiter=new y.default(p.settings.UPLOADS_PER_FRAME),this.renderer=e,this.uploadHookHelper=null,this.queue=[],this.addHooks=[],this.uploadHooks=[],this.completes=[],this.ticking=!1,this.delayedTick=function(){r.queue&&r.prepareItems();},this.registerFindHook(c),this.registerFindHook(d),this.registerFindHook(s),this.registerFindHook(a),this.registerFindHook(u),this.registerUploadHook(h),this.registerUploadHook(l);}return t.prototype.upload=function(t,e){"function"==typeof t&&(e=t,t=null),t&&this.add(t),this.queue.length?(e&&this.completes.push(e),this.ticking||(this.ticking=!0,g.addOnce(this.tick,this,p.UPDATE_PRIORITY.UTILITY))):e&&e();},t.prototype.tick=function(){setTimeout(this.delayedTick,0);},t.prototype.prepareItems=function(){for(this.limiter.beginFrame();this.queue.length&&this.limiter.allowedToUpload();){var t=this.queue[0],e=!1;if(t&&!t._destroyed)for(var r=0,n=this.uploadHooks.length;r<n;r++)if(this.uploadHooks[r](this.uploadHookHelper,t)){this.queue.shift(),e=!0;break}e||this.queue.shift();}if(this.queue.length)g.addOnce(this.tick,this,p.UPDATE_PRIORITY.UTILITY);else{this.ticking=!1;var i=this.completes.slice(0);this.completes.length=0;for(var o=0,s=i.length;o<s;o++)i[o]();}},t.prototype.registerFindHook=function(t){return t&&this.addHooks.push(t),this},t.prototype.registerUploadHook=function(t){return t&&this.uploadHooks.push(t),this},t.prototype.add=function(t){for(var e=0,r=this.addHooks.length;e<r&&!this.addHooks[e](t,this.queue);e++);if(t instanceof p.Container)for(var n=t.children.length-1;n>=0;n--)this.add(t.children[n]);return this},t.prototype.destroy=function(){this.ticking&&g.remove(this.tick,this),this.ticking=!1,this.addHooks=null,this.uploadHooks=null,this.renderer=null,this.completes=null,this.queue=null,this.limiter=null,this.uploadHookHelper=null;},t}();r.default=m;},{"../core":63,"./limiters/CountLimiter":182}],180:[function(t,e,r){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}function i(t){if(t&&t.__esModule)return t;var e={};if(null!=t)for(var r in t)Object.prototype.hasOwnProperty.call(t,r)&&(e[r]=t[r]);return e.default=t,e}function o(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function s(t,e){if(!t)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!e||"object"!=typeof e&&"function"!=typeof e?t:e}function a(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function, not "+typeof e);t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,enumerable:!1,writable:!0,configurable:!0}}),e&&(Object.setPrototypeOf?Object.setPrototypeOf(t,e):t.__proto__=e);}function u(t,e){if(e instanceof l.BaseTexture){var r=e.source,n=0===r.width?t.canvas.width:Math.min(t.canvas.width,r.width),i=0===r.height?t.canvas.height:Math.min(t.canvas.height,r.height);return t.ctx.drawImage(r,0,0,n,i,0,0,t.canvas.width,t.canvas.height),!0}return!1}r.__esModule=!0;var h=t("../../core"),l=i(h),c=t("../BasePrepare"),d=n(c),f=16,p=function(t){function e(r){o(this,e);var n=s(this,t.call(this,r));return n.uploadHookHelper=n,n.canvas=document.createElement("canvas"),n.canvas.width=f,n.canvas.height=f,n.ctx=n.canvas.getContext("2d"),n.registerUploadHook(u),n}return a(e,t),e.prototype.destroy=function(){t.prototype.destroy.call(this),this.ctx=null,this.canvas=null;},e}(d.default);r.default=p,l.CanvasRenderer.registerPlugin("prepare",p);},{"../../core":63,"../BasePrepare":179}],181:[function(t,e,r){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}r.__esModule=!0;var i=t("./webgl/WebGLPrepare");Object.defineProperty(r,"webgl",{enumerable:!0,get:function(){return n(i).default}});var o=t("./canvas/CanvasPrepare");Object.defineProperty(r,"canvas",{enumerable:!0,get:function(){return n(o).default}});var s=t("./BasePrepare");Object.defineProperty(r,"BasePrepare",{enumerable:!0,get:function(){return n(s).default}});var a=t("./limiters/CountLimiter");Object.defineProperty(r,"CountLimiter",{enumerable:!0,get:function(){return n(a).default}});var u=t("./limiters/TimeLimiter");Object.defineProperty(r,"TimeLimiter",{enumerable:!0,get:function(){return n(u).default}});},{"./BasePrepare":179,"./canvas/CanvasPrepare":180,"./limiters/CountLimiter":182,"./limiters/TimeLimiter":183,"./webgl/WebGLPrepare":184}],182:[function(t,e,r){"use strict";function n(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}r.__esModule=!0;var i=function(){function t(e){n(this,t),this.maxItemsPerFrame=e,this.itemsLeft=0;}return t.prototype.beginFrame=function(){this.itemsLeft=this.maxItemsPerFrame;},t.prototype.allowedToUpload=function(){return this.itemsLeft-- >0},t}();r.default=i;},{}],183:[function(t,e,r){"use strict";function n(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}r.__esModule=!0;var i=function(){function t(e){n(this,t),this.maxMilliseconds=e,this.frameStart=0;}return t.prototype.beginFrame=function(){this.frameStart=Date.now();},t.prototype.allowedToUpload=function(){return Date.now()-this.frameStart<this.maxMilliseconds},t}();r.default=i;},{}],184:[function(t,e,r){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}function i(t){if(t&&t.__esModule)return t;var e={};if(null!=t)for(var r in t)Object.prototype.hasOwnProperty.call(t,r)&&(e[r]=t[r]);return e.default=t,e}function o(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function s(t,e){if(!t)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!e||"object"!=typeof e&&"function"!=typeof e?t:e}function a(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function, not "+typeof e);t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,enumerable:!1,writable:!0,configurable:!0}}),e&&(Object.setPrototypeOf?Object.setPrototypeOf(t,e):t.__proto__=e);}function u(t,e){return e instanceof d.BaseTexture&&(e._glTextures[t.CONTEXT_UID]||t.textureManager.updateTexture(e),!0)}function h(t,e){return e instanceof d.Graphics&&((e.dirty||e.clearDirty||!e._webGL[t.plugins.graphics.CONTEXT_UID])&&t.plugins.graphics.updateGraphics(e),!0)}function l(t,e){return t instanceof d.Graphics&&(e.push(t),!0)}r.__esModule=!0;var c=t("../../core"),d=i(c),f=t("../BasePrepare"),p=n(f),v=function(t){function e(r){o(this,e);var n=s(this,t.call(this,r));return n.uploadHookHelper=n.renderer,n.registerFindHook(l),n.registerUploadHook(u),n.registerUploadHook(h),n}return a(e,t),e}(p.default);r.default=v,d.WebGLRenderer.registerPlugin("prepare",v);},{"../../core":63,"../BasePrepare":179}],185:[function(t,e,r){(function(e){"use strict";function n(t){if(t&&t.__esModule)return t;var e={};if(null!=t)for(var r in t)Object.prototype.hasOwnProperty.call(t,r)&&(e[r]=t[r]);return e.default=t,e}r.__esModule=!0,r.loader=r.prepare=r.particles=r.mesh=r.loaders=r.interaction=r.filters=r.extras=r.extract=r.accessibility=void 0;var i=t("./polyfill");Object.keys(i).forEach(function(t){"default"!==t&&"__esModule"!==t&&Object.defineProperty(r,t,{enumerable:!0,get:function(){return i[t]}});});var o=t("./deprecation");Object.keys(o).forEach(function(t){"default"!==t&&"__esModule"!==t&&Object.defineProperty(r,t,{enumerable:!0,get:function(){return o[t]}});});var s=t("./core");Object.keys(s).forEach(function(t){"default"!==t&&"__esModule"!==t&&Object.defineProperty(r,t,{enumerable:!0,get:function(){return s[t]}});});var a=t("./accessibility"),u=n(a),h=t("./extract"),l=n(h),c=t("./extras"),d=n(c),f=t("./filters"),p=n(f),v=t("./interaction"),y=n(v),g=t("./loaders"),m=n(g),_=t("./mesh"),b=n(_),x=t("./particles"),T=n(x),w=t("./prepare"),E=n(w);s.utils.mixins.performMixins();var S=m.shared||null;r.accessibility=u,r.extract=l,r.extras=d,r.filters=p,r.interaction=y,r.loaders=m,r.mesh=b,r.particles=T,r.prepare=E,r.loader=S,e.PIXI=r;}).call(this,"undefined"!=typeof global?global:"undefined"!=typeof self?self:"undefined"!=typeof window?window:{});},{"./accessibility":40,"./core":63,"./deprecation":127,"./extract":129,"./extras":138,"./filters":149,"./interaction":156,"./loaders":159,"./mesh":168,"./particles":171,"./polyfill":177,"./prepare":181}]},{},[185])(185)});
 //# sourceMappingURL=pixi.min.js.map
 
+class Vector {
+  constructor(x = 0, y = 0) {
+    this.x = x;
+    this.y = y;
+  }
+
+  add(vector) {
+    this.x += vector.x;
+    this.y += vector.y;
+  }
+
+  clone() {
+    return Object.assign({}, this);
+  }
+}
+
+const DIRECTION_NONE = Symbol('none');
+const DIRECTION_RIGHT = Symbol('right');
+const DIRECTION_LEFT = Symbol('left');
+
+const maxVelocity = 0.1;
+const dampingGround = 0.8;
+const dampingMidair = 0.95;
+const runAcceleration = 0.005;
+
+class Wheel {
+  constructor() {
+    this.direction = DIRECTION_NONE;
+    this.runningPaused = false;
+    this.rotation = 0;
+    this.velocity = 0;
+    this.acceleration = 0;
+  }
+
+  runRight() {
+    this.direction = DIRECTION_RIGHT;
+    this.acceleration += runAcceleration;
+    this.runningPaused = false;
+  }
+
+  runLeft() {
+    this.direction = DIRECTION_LEFT;
+    this.acceleration -= runAcceleration;
+    this.runningPaused = false;
+  }
+
+  stopRunning() {
+    this.direction = DIRECTION_NONE;
+    this.acceleration = 0;
+    this.runningPaused = false;
+  }
+
+  pauseRunning() {
+    this.runningPaused = true;
+    this.acceleration = 0;
+  }
+
+  continueRunning() {
+    if (this.runningPaused) {
+      this.runningPaused = false;
+
+      switch (this.direction) {
+        case DIRECTION_LEFT:
+          this.runLeft();
+          break;
+        case DIRECTION_RIGHT:
+          this.runRight();
+          break;
+      }
+    }
+  }
+
+  update() {
+    this.velocity += this.acceleration;
+
+    if (this.velocity > 0 && this.velocity >= maxVelocity) {
+      this.velocity = maxVelocity;
+      this.acceleration = 0;
+    } else if (this.velocity < 0 && this.velocity <= -maxVelocity) {
+      this.velocity = -maxVelocity;
+      this.acceleration = 0;
+    }
+
+    if (this.direction === DIRECTION_NONE && this.velocity) {
+      this.velocity = dampingGround * this.velocity;
+    }
+
+    if (this.runningPaused && this.velocity) {
+      this.velocity = dampingMidair * this.velocity;
+    }
+
+    this.rotation += this.velocity;
+  }
+}
+
+const DIRECTION_RIGHT$1 = Symbol('right');
+const DIRECTION_LEFT$1 = Symbol('left');
+
+const jumpGravityAcceleration = -0.5;
+const freefallGravityAcceleration = -1.25;
+
+class Player {
+  constructor() {
+    this.direction = DIRECTION_RIGHT$1;
+    this.jumpPosition = 0;
+    this.jumpVelocity = 0;
+    this.jumpAcceleration = 0;
+  }
+
+  turnLeft() {
+    this.direction = DIRECTION_LEFT$1;
+  }
+
+  turnRight() {
+    this.direction = DIRECTION_RIGHT$1;
+  }
+
+  facingLeft() {
+    return this.direction === DIRECTION_LEFT$1;
+  }
+
+  facingRight() {
+    return this.direction === DIRECTION_RIGHT$1;
+  }
+
+  canJump() {
+    return this.jumpPosition === 0;
+  }
+
+  jump() {
+    this.jumpVelocity = 12;
+    this.jumpAcceleration = jumpGravityAcceleration;
+  }
+
+  isJumping() {
+    return this.jumpAcceleration === jumpGravityAcceleration;
+  }
+
+  isFalling() {
+    return this.jumpAcceleration === freefallGravityAcceleration;
+  }
+
+  stopJumping() {
+    this.jumpAcceleration = freefallGravityAcceleration;
+  }
+
+  isOnGround() {
+    return this.jumpPosition === 0;
+  }
+
+  update() {
+    this.jumpVelocity += this.jumpAcceleration;
+    this.jumpPosition += this.jumpVelocity;
+
+    if (this.jumpPosition <= 0) {
+      this.jumpPosition = 0;
+      this.jumpAcceleration = 0;
+      this.jumpVelocity = 0;
+    }
+  }
+}
+
+class Key {
+  constructor(keyCode) {
+    this.code = keyCode;
+    this.isDown = false;
+    this.isUp = true;
+    this.press = undefined;
+    this.release = undefined;
+
+    //Attach event listeners
+    window.addEventListener('keydown', this.downHandler.bind(this), false);
+    window.addEventListener('keyup', this.upHandler.bind(this), false);
+  }
+
+  downHandler(event) {
+    if (event.keyCode === this.code) {
+      if (this.isUp && this.press) {
+        this.press();
+      }
+
+      this.isDown = true;
+      this.isUp = false;
+    }
+    event.preventDefault();
+  }
+
+  upHandler(event) {
+    if (event.keyCode === this.code) {
+      if (this.isDown && this.release) {
+        this.release();
+      }
+
+      this.isDown = false;
+      this.isUp = true;
+    }
+    event.preventDefault();
+  }
+}
+
+// The application will create a renderer using WebGL, if possible,
+// with a fallback to a canvas render. It will also setup the ticker
+// and the root stage PIXI.Container.
 const app = new PIXI.Application();
 
 // The application will create a canvas element for you that you
 // can then insert into the DOM.
 document.body.appendChild(app.view);
-
-function keyboard(keyCode) {
-  const key = {};
-  key.code = keyCode;
-  key.isDown = false;
-  key.isUp = true;
-  key.press = undefined;
-  key.release = undefined;
-  //The `downHandler`
-  key.downHandler = function(event) {
-    if (event.keyCode === key.code) {
-      if (key.isUp && key.press) key.press();
-        key.isDown = true;
-      key.isUp = false;
-    }
-    event.preventDefault();
-  };
-
-  //The `upHandler`
-  key.upHandler = function(event) {
-    if (event.keyCode === key.code) {
-      if (key.isDown && key.release) key.release();
-      key.isDown = false;
-      key.isUp = true;
-    }
-    event.preventDefault();
-  };
-
-  //Attach event listeners
-  window.addEventListener(
-    "keydown", key.downHandler.bind(key), false
-  );
-  window.addEventListener(
-    "keyup", key.upHandler.bind(key), false
-  );
-  return key;
-}
 
 // load the texture we need
 PIXI.loader
@@ -72,37 +238,8 @@ PIXI.loader
   .add('characterRight', '../assets/images/characterRight.png')
   .add('characterLeft', '../assets/images/characterLeft.png')
   .load(function(loader, resources) {
-    var wheel = new PIXI.Sprite(resources.wheel.texture);
-
-    wheel.x = app.renderer.width / 2;
-    wheel.y = app.renderer.height / 2;
-    wheel.width = 480;
-    wheel.height = 480;
-    wheel.anchor.x = 0.5;
-    wheel.anchor.y = 0.5;
-
-    // Add the wheel to the scene we are building.
-    app.stage.addChild(wheel);
-
-    const characterFloor = app.renderer.height / 2 + wheel.height / 2 - 20;
-
-    var characterRight = new PIXI.Sprite(resources.characterRight.texture);
-
-    characterRight.x = app.renderer.width / 2;
-    characterRight.y = characterFloor;
-
-    characterRight.anchor.x = 0.5;
-    characterRight.anchor.y = 1;
-
-    var characterLeft = new PIXI.Sprite(resources.characterLeft.texture);
-
-    characterLeft.x = app.renderer.width / 2;
-    characterLeft.y = characterFloor;
-
-    characterLeft.anchor.x = 0.5;
-    characterLeft.anchor.y = 1;
-
-    app.stage.addChild(characterRight);
+    const state = generateInitialState();
+    const sprites = generateSprites(resources);
 
 
 
@@ -110,77 +247,42 @@ PIXI.loader
 
 
 
-    const ACTION_NONE = Symbol('none');
-    const ACTION_JUMP = Symbol('jump');
-    const ACTION_SLIDE = Symbol('slide');
-
-    const DIRECTION_NONE = Symbol('none');
-    const DIRECTION_RIGHT = Symbol('right');
-    const DIRECTION_LEFT = Symbol('left');
-
-    let wheelRotationalVelocity = 0;
-    const maxWheelRotationalVelocity = 0.15;
-    let wheelRotationalAcceleration = 0;
-    const wheelRotationalDamping = 0.01;
-    const wheelRotationalDampingMidair = 0.002;
-
-    let verticalAcceleration = 0;
-    let verticalVelocity = 0;
-    let verticalPosition = 0;
-
-    let direction = DIRECTION_NONE;
-    let running = DIRECTION_NONE;
-    let jumping = false;
-
-    let jumpingDuration = 0;
-    const jumpingMaxDuration = 8;
-
-    const rightKey = keyboard(68);
-    const leftKey = keyboard(65);
-    const upKey = keyboard(87);
-    const downKey = keyboard(88);
+    const rightKey = new Key(68);
+    const leftKey = new Key(65);
+    const upKey = new Key(87);
+    const downKey = new Key(88);
 
     rightKey.press = function() {
-      if (running !== DIRECTION_RIGHT) {
-        wheelRotationalAcceleration = 0.0025;
-      }
-
-      running = DIRECTION_RIGHT;
+      state.player.turnRight();
+      state.wheel.runRight();
     };
 
     rightKey.release = function() {
-      running = DIRECTION_NONE;
-      wheelRotationalAcceleration = 0;
+      if (leftKey.isUp) {
+        state.wheel.stopRunning();
+      }
     };
 
     leftKey.press = function() {
-      if (running !== DIRECTION_RIGHT) {
-        wheelRotationalAcceleration = -0.0025;
-      }
-
-      running = DIRECTION_LEFT;
+      state.player.turnLeft();
+      state.wheel.runLeft();
     };
 
     leftKey.release = function() {
-      running = DIRECTION_NONE;
-      wheelRotationalAcceleration = 0;
+      if (rightKey.isUp) {
+        state.wheel.stopRunning();
+      }
     };
 
     upKey.press = function() {
-      if (verticalPosition === 0) {
-        verticalAcceleration = 10;
-        jumping = true;
-
-        if (running === DIRECTION_RIGHT) {
-          wheelRotationalAcceleration = 0.1;
-        } else if (running === DIRECTION_LEFT) {
-          wheelRotationalAcceleration = -0.1;
-        }
+      if (state.player.canJump()) {
+        state.player.jump();
+        state.wheel.pauseRunning();
       }
     };
 
     upKey.release = function() {
-      jumping = false;
+      state.player.stopJumping();
     };
 
     downKey.press = function() {
@@ -192,75 +294,87 @@ PIXI.loader
 
 
 
-
-
-
-    let character = characterRight;
+    const characterBaseY = sprites.characterRight.y;
 
     // Listen for frame updates
     app.ticker.add(function() {
-      if (verticalPosition === 0) {
-        wheelRotationalVelocity += wheelRotationalAcceleration;
+      // Update state
+      state.wheel.update();
+      state.player.update();
+
+      if (state.player.isOnGround()) {
+        state.wheel.continueRunning();
       }
 
-      if (verticalPosition > 0) {
-        if (Math.abs(wheelRotationalVelocity) <= wheelRotationalDamping) {
-          wheelRotationalVelocity = 0;
-        } else {
-          wheelRotationalVelocity -= wheelRotationalDampingMidair * (wheelRotationalVelocity / Math.abs(wheelRotationalVelocity));
-        }
-      }
+      // Update view
+      sprites.wheel.rotation = state.wheel.rotation;
 
-      if (running === DIRECTION_NONE && wheelRotationalVelocity) {
-        if (Math.abs(wheelRotationalVelocity) <= wheelRotationalDamping) {
-          wheelRotationalVelocity = 0;
-        } else {
-          wheelRotationalVelocity -= wheelRotationalDamping * (wheelRotationalVelocity / Math.abs(wheelRotationalVelocity));
-        }
-      }
+      let character;
 
-      if (wheelRotationalVelocity < 0) {
-        wheelRotationalVelocity = Math.max(wheelRotationalVelocity, -maxWheelRotationalVelocity);
+      if (state.player.facingRight()) {
+        app.stage.removeChild(sprites.characterLeft);
+        app.stage.addChild(sprites.characterRight);
+        character = sprites.characterRight;
       } else {
-        wheelRotationalVelocity = Math.min(wheelRotationalVelocity, maxWheelRotationalVelocity);
+        app.stage.removeChild(sprites.characterRight);
+        app.stage.addChild(sprites.characterLeft);
+        character = sprites.characterLeft;
       }
 
-      console.log(wheelRotationalVelocity);
-
-      wheel.rotation += wheelRotationalVelocity;
-
-      switch (running) {
-        case DIRECTION_RIGHT:
-          app.stage.removeChild(characterLeft);
-          app.stage.addChild(characterRight);
-          character = characterRight;
-          break;
-        case DIRECTION_LEFT:
-          app.stage.removeChild(characterRight);
-          app.stage.addChild(characterLeft);
-          character = characterLeft;
-          break;
-      }
-
-      verticalVelocity += verticalAcceleration;
-      verticalPosition += verticalVelocity;
-
-      if (verticalPosition < 0) {
-        verticalPosition = 0;
-        verticalVelocity = 0;
-        verticalAcceleration = 0;
-      }
-
-      character.y = characterFloor - verticalPosition;
-
-      if (verticalPosition > 0) {
-        if (jumping) {
-          verticalAcceleration = -0.6;
-        } else {
-          verticalAcceleration = -2;
-        }
-      }
+      character.y = characterBaseY - state.player.jumpPosition;
     });
   });
+
+
+
+
+
+
+function generateSprites(resources) {
+  const sprites = {
+    wheel: new PIXI.Sprite(resources.wheel.texture),
+    characterRight: new PIXI.Sprite(resources.characterRight.texture),
+    characterLeft: new PIXI.Sprite(resources.characterLeft.texture),
+  };
+
+  const center = new Vector(
+    app.renderer.width / 2,
+    app.renderer.height / 2
+  );
+
+  sprites.wheel.x = center.x;
+  sprites.wheel.y = center.y;
+  sprites.wheel.width = 480;
+  sprites.wheel.height = 480;
+  sprites.wheel.anchor.x = 0.5;
+  sprites.wheel.anchor.y = 0.5;
+
+  app.stage.addChild(sprites.wheel);
+
+  const characterFloor = center.y + sprites.wheel.height / 2 - 20;
+
+  sprites.characterRight.x = center.x;
+  sprites.characterRight.y = characterFloor;
+
+  sprites.characterRight.anchor.x = 0.5;
+  sprites.characterRight.anchor.y = 1;
+
+  sprites.characterLeft.x = center.x;
+  sprites.characterLeft.y = characterFloor;
+
+  sprites.characterLeft.anchor.x = 0.5;
+  sprites.characterLeft.anchor.y = 1;
+
+  app.stage.addChild(sprites.characterRight);
+
+  return sprites;
+}
+
+function generateInitialState() {
+  return {
+    wheel: new Wheel(),
+    player: new Player(),
+  };
+}
 
 }());

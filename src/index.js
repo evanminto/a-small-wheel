@@ -1,4 +1,8 @@
 import './vendor/pixi.min.js';
+import Wheel from './models/Wheel';
+import Player from './models/Player';
+import Vector from './models/Vector';
+import Key from './models/Key';
 
 // The application will create a renderer using WebGL, if possible,
 // with a fallback to a canvas render. It will also setup the ticker
@@ -9,80 +13,14 @@ const app = new PIXI.Application();
 // can then insert into the DOM.
 document.body.appendChild(app.view);
 
-function keyboard(keyCode) {
-  const key = {};
-  key.code = keyCode;
-  key.isDown = false;
-  key.isUp = true;
-  key.press = undefined;
-  key.release = undefined;
-  //The `downHandler`
-  key.downHandler = function(event) {
-    if (event.keyCode === key.code) {
-      if (key.isUp && key.press) key.press();
-        key.isDown = true;
-      key.isUp = false;
-    }
-    event.preventDefault();
-  };
-
-  //The `upHandler`
-  key.upHandler = function(event) {
-    if (event.keyCode === key.code) {
-      if (key.isDown && key.release) key.release();
-      key.isDown = false;
-      key.isUp = true;
-    }
-    event.preventDefault();
-  };
-
-  //Attach event listeners
-  window.addEventListener(
-    "keydown", key.downHandler.bind(key), false
-  );
-  window.addEventListener(
-    "keyup", key.upHandler.bind(key), false
-  );
-  return key;
-}
-
 // load the texture we need
 PIXI.loader
   .add('wheel', '../assets/images/wheel.jpg')
   .add('characterRight', '../assets/images/characterRight.png')
   .add('characterLeft', '../assets/images/characterLeft.png')
   .load(function(loader, resources) {
-    var wheel = new PIXI.Sprite(resources.wheel.texture);
-
-    wheel.x = app.renderer.width / 2;
-    wheel.y = app.renderer.height / 2;
-    wheel.width = 480;
-    wheel.height = 480;
-    wheel.anchor.x = 0.5;
-    wheel.anchor.y = 0.5;
-
-    // Add the wheel to the scene we are building.
-    app.stage.addChild(wheel);
-
-    const characterFloor = app.renderer.height / 2 + wheel.height / 2 - 20;
-
-    var characterRight = new PIXI.Sprite(resources.characterRight.texture);
-
-    characterRight.x = app.renderer.width / 2;
-    characterRight.y = characterFloor;
-
-    characterRight.anchor.x = 0.5;
-    characterRight.anchor.y = 1;
-
-    var characterLeft = new PIXI.Sprite(resources.characterLeft.texture);
-
-    characterLeft.x = app.renderer.width / 2;
-    characterLeft.y = characterFloor;
-
-    characterLeft.anchor.x = 0.5;
-    characterLeft.anchor.y = 1;
-
-    app.stage.addChild(characterRight);
+    const state = generateInitialState();
+    const sprites = generateSprites(resources);
 
 
 
@@ -90,77 +28,42 @@ PIXI.loader
 
 
 
-    const ACTION_NONE = Symbol('none');
-    const ACTION_JUMP = Symbol('jump');
-    const ACTION_SLIDE = Symbol('slide');
-
-    const DIRECTION_NONE = Symbol('none');
-    const DIRECTION_RIGHT = Symbol('right');
-    const DIRECTION_LEFT = Symbol('left');
-
-    let wheelRotationalVelocity = 0;
-    const maxWheelRotationalVelocity = 0.15;
-    let wheelRotationalAcceleration = 0;
-    const wheelRotationalDamping = 0.01;
-    const wheelRotationalDampingMidair = 0.002;
-
-    let verticalAcceleration = 0;
-    let verticalVelocity = 0;
-    let verticalPosition = 0;
-
-    let direction = DIRECTION_NONE;
-    let running = DIRECTION_NONE;
-    let jumping = false;
-
-    let jumpingDuration = 0;
-    const jumpingMaxDuration = 8;
-
-    const rightKey = keyboard(68);
-    const leftKey = keyboard(65);
-    const upKey = keyboard(87);
-    const downKey = keyboard(88);
+    const rightKey = new Key(68);
+    const leftKey = new Key(65);
+    const upKey = new Key(87);
+    const downKey = new Key(88);
 
     rightKey.press = function() {
-      if (running !== DIRECTION_RIGHT) {
-        wheelRotationalAcceleration = 0.0025;
-      }
-
-      running = DIRECTION_RIGHT;
+      state.player.turnRight();
+      state.wheel.runRight();
     };
 
     rightKey.release = function() {
-      running = DIRECTION_NONE;
-      wheelRotationalAcceleration = 0;
+      if (leftKey.isUp) {
+        state.wheel.stopRunning();
+      }
     };
 
     leftKey.press = function() {
-      if (running !== DIRECTION_RIGHT) {
-        wheelRotationalAcceleration = -0.0025;
-      }
-
-      running = DIRECTION_LEFT;
+      state.player.turnLeft();
+      state.wheel.runLeft();
     };
 
     leftKey.release = function() {
-      running = DIRECTION_NONE;
-      wheelRotationalAcceleration = 0;
+      if (rightKey.isUp) {
+        state.wheel.stopRunning();
+      }
     };
 
     upKey.press = function() {
-      if (verticalPosition === 0) {
-        verticalAcceleration = 10;
-        jumping = true;
-
-        if (running === DIRECTION_RIGHT) {
-          wheelRotationalAcceleration = 0.1;
-        } else if (running === DIRECTION_LEFT) {
-          wheelRotationalAcceleration = -0.1;
-        }
+      if (state.player.canJump()) {
+        state.player.jump();
+        state.wheel.pauseRunning();
       }
     };
 
     upKey.release = function() {
-      jumping = false;
+      state.player.stopJumping();
     };
 
     downKey.press = function() {
@@ -172,73 +75,85 @@ PIXI.loader
 
 
 
-
-
-
-    let character = characterRight;
+    const characterBaseY = sprites.characterRight.y;
 
     // Listen for frame updates
     app.ticker.add(function() {
-      if (verticalPosition === 0) {
-        wheelRotationalVelocity += wheelRotationalAcceleration;
+      // Update state
+      state.wheel.update();
+      state.player.update();
+
+      if (state.player.isOnGround()) {
+        state.wheel.continueRunning();
       }
 
-      if (verticalPosition > 0) {
-        if (Math.abs(wheelRotationalVelocity) <= wheelRotationalDamping) {
-          wheelRotationalVelocity = 0;
-        } else {
-          wheelRotationalVelocity -= wheelRotationalDampingMidair * (wheelRotationalVelocity / Math.abs(wheelRotationalVelocity));
-        }
-      }
+      // Update view
+      sprites.wheel.rotation = state.wheel.rotation;
 
-      if (running === DIRECTION_NONE && wheelRotationalVelocity) {
-        if (Math.abs(wheelRotationalVelocity) <= wheelRotationalDamping) {
-          wheelRotationalVelocity = 0;
-        } else {
-          wheelRotationalVelocity -= wheelRotationalDamping * (wheelRotationalVelocity / Math.abs(wheelRotationalVelocity));
-        }
-      }
+      let character;
 
-      if (wheelRotationalVelocity < 0) {
-        wheelRotationalVelocity = Math.max(wheelRotationalVelocity, -maxWheelRotationalVelocity);
+      if (state.player.facingRight()) {
+        app.stage.removeChild(sprites.characterLeft);
+        app.stage.addChild(sprites.characterRight);
+        character = sprites.characterRight;
       } else {
-        wheelRotationalVelocity = Math.min(wheelRotationalVelocity, maxWheelRotationalVelocity);
+        app.stage.removeChild(sprites.characterRight);
+        app.stage.addChild(sprites.characterLeft);
+        character = sprites.characterLeft;
       }
 
-      console.log(wheelRotationalVelocity);
-
-      wheel.rotation += wheelRotationalVelocity;
-
-      switch (running) {
-        case DIRECTION_RIGHT:
-          app.stage.removeChild(characterLeft);
-          app.stage.addChild(characterRight);
-          character = characterRight;
-          break;
-        case DIRECTION_LEFT:
-          app.stage.removeChild(characterRight);
-          app.stage.addChild(characterLeft);
-          character = characterLeft;
-          break;
-      }
-
-      verticalVelocity += verticalAcceleration;
-      verticalPosition += verticalVelocity;
-
-      if (verticalPosition < 0) {
-        verticalPosition = 0;
-        verticalVelocity = 0;
-        verticalAcceleration = 0;
-      }
-
-      character.y = characterFloor - verticalPosition;
-
-      if (verticalPosition > 0) {
-        if (jumping) {
-          verticalAcceleration = -0.6;
-        } else {
-          verticalAcceleration = -2;
-        }
-      }
+      character.y = characterBaseY - state.player.jumpPosition;
     });
   });
+
+
+
+
+
+
+function generateSprites(resources) {
+  const sprites = {
+    wheel: new PIXI.Sprite(resources.wheel.texture),
+    characterRight: new PIXI.Sprite(resources.characterRight.texture),
+    characterLeft: new PIXI.Sprite(resources.characterLeft.texture),
+  };
+
+  const center = new Vector(
+    app.renderer.width / 2,
+    app.renderer.height / 2
+  );
+
+  sprites.wheel.x = center.x;
+  sprites.wheel.y = center.y;
+  sprites.wheel.width = 480;
+  sprites.wheel.height = 480;
+  sprites.wheel.anchor.x = 0.5;
+  sprites.wheel.anchor.y = 0.5;
+
+  app.stage.addChild(sprites.wheel);
+
+  const characterFloor = center.y + sprites.wheel.height / 2 - 20;
+
+  sprites.characterRight.x = center.x;
+  sprites.characterRight.y = characterFloor;
+
+  sprites.characterRight.anchor.x = 0.5;
+  sprites.characterRight.anchor.y = 1;
+
+  sprites.characterLeft.x = center.x;
+  sprites.characterLeft.y = characterFloor;
+
+  sprites.characterLeft.anchor.x = 0.5;
+  sprites.characterLeft.anchor.y = 1;
+
+  app.stage.addChild(sprites.characterRight);
+
+  return sprites;
+}
+
+function generateInitialState() {
+  return {
+    wheel: new Wheel(),
+    player: new Player(),
+  };
+}
