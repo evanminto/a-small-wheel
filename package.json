@@ -5,13 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup src/index.js --format iife --output build/index.js",
-    "watch": "rollup src/index.js --format iife --output build/index.js --watch"
+    "build": "rollup src/index.js -c rollupConfig.js --output build/index.js",
+    "watch": "rollup src/index.js -c rollupConfig.js --output build/index.js --watch"
   },
   "author": "Evan Minto (evan.minto@gmail.com)",
   "license": "ISC",
   "devDependencies": {
     "rollup": "^0.41.6",
+    "rollup-plugin-json": "^2.1.1",
     "rollup-watch": "^3.2.2"
   },
   "dependencies": {

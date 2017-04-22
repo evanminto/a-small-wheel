@@ -3,6 +3,7 @@ import Wheel from './models/Wheel';
 import Player from './models/Player';
 import Vector from './models/Vector';
 import Key from './models/Key';
+import Level from './models/Level';
 
 // The application will create a renderer using WebGL, if possible,
 // with a fallback to a canvas render. It will also setup the ticker
@@ -13,14 +14,20 @@ const app = new PIXI.Application();
 // can then insert into the DOM.
 document.body.appendChild(app.view);
 
+const center = new Vector(
+  app.renderer.width / 2,
+  app.renderer.height / 2
+);
+
 // load the texture we need
 PIXI.loader
   .add('wheel', '../assets/images/wheel.jpg')
   .add('characterRight', '../assets/images/characterRight.png')
   .add('characterLeft', '../assets/images/characterLeft.png')
+  .add('obstacle', '../assets/images/obstacleTemp.jpg')
   .load(function(loader, resources) {
     const state = generateInitialState();
-    const sprites = generateSprites(resources);
+    const sprites = generateSprites(state, resources);
 
 
 
@@ -75,7 +82,7 @@ PIXI.loader
 
 
 
-    const characterBaseY = sprites.characterRight.y;
+    const characterBaseY = sprites.character.y;
 
     // Listen for frame updates
     app.ticker.add(function() {
@@ -93,16 +100,14 @@ PIXI.loader
       let character;
 
       if (state.player.facingRight()) {
-        app.stage.removeChild(sprites.characterLeft);
-        app.stage.addChild(sprites.characterRight);
-        character = sprites.characterRight;
+        sprites.character.children[0].visible = false;
+        sprites.character.children[1].visible = true;
       } else {
-        app.stage.removeChild(sprites.characterRight);
-        app.stage.addChild(sprites.characterLeft);
-        character = sprites.characterLeft;
+        sprites.character.children[0].visible = true;
+        sprites.character.children[1].visible = false;
       }
 
-      character.y = characterBaseY - state.player.jumpPosition;
+      sprites.character.y = characterBaseY - state.player.jumpPosition;
     });
   });
 
@@ -111,42 +116,79 @@ PIXI.loader
 
 
 
-function generateSprites(resources) {
+function generateSprites(state, resources) {
   const sprites = {
-    wheel: new PIXI.Sprite(resources.wheel.texture),
-    characterRight: new PIXI.Sprite(resources.characterRight.texture),
-    characterLeft: new PIXI.Sprite(resources.characterLeft.texture),
+    wheel: new PIXI.Container(),
+    character: new PIXI.Container(),
   };
 
-  const center = new Vector(
-    app.renderer.width / 2,
-    app.renderer.height / 2
-  );
+
+
+  const baseWheel = new PIXI.Sprite(resources.wheel.texture);
+
+  baseWheel.width = 480;
+  baseWheel.height = 480;
 
   sprites.wheel.x = center.x;
   sprites.wheel.y = center.y;
-  sprites.wheel.width = 480;
-  sprites.wheel.height = 480;
-  sprites.wheel.anchor.x = 0.5;
-  sprites.wheel.anchor.y = 0.5;
+  sprites.wheel.pivot.x = baseWheel.width / 2;
+  sprites.wheel.pivot.y = baseWheel.height / 2;
+
+  sprites.wheel.addChild(baseWheel);
+
+
+
+  const characterFloor = center.y + baseWheel.height / 2 - 20;
+
+
+
+
+  const obstacles = state.level.getAllObstacles();
+  const obstacleSprites = obstacles.map((obstacle) => {
+    const sprite = new PIXI.Sprite(resources.obstacle.texture);
+
+    if (obstacle.isPillar()) {
+      if (obstacle.isSmall()) {
+        sprite.x = baseWheel.width / 2;
+        sprite.y = baseWheel.height / 2;
+        sprite.width = 16;
+        sprite.height = 40;
+        sprite.pivot.x = 8;
+        sprite.pivot.y = -baseWheel.height * 1.75;
+        sprite.rotation = -obstacle.getRadianPosition();
+      }
+    }
+
+    return sprite;
+  })
+
+  obstacleSprites.forEach((obstacle) => {
+    sprites.wheel.addChild(obstacle);
+  });
+
+
+
+
+  const characterRight = new PIXI.Sprite(resources.characterRight.texture);
+  const characterLeft = new PIXI.Sprite(resources.characterLeft.texture);
+
+  characterLeft.visible = false;
+
+  sprites.character.addChild(characterLeft);
+  sprites.character.addChild(characterRight);
+
+  sprites.character.x = center.x;
+  sprites.character.y = characterFloor;
+
+  sprites.character.pivot.x = characterRight.height / 2;
+  sprites.character.pivot.y = characterRight.height;
+
+
 
   app.stage.addChild(sprites.wheel);
+  app.stage.addChild(sprites.character);
 
-  const characterFloor = center.y + sprites.wheel.height / 2 - 20;
 
-  sprites.characterRight.x = center.x;
-  sprites.characterRight.y = characterFloor;
-
-  sprites.characterRight.anchor.x = 0.5;
-  sprites.characterRight.anchor.y = 1;
-
-  sprites.characterLeft.x = center.x;
-  sprites.characterLeft.y = characterFloor;
-
-  sprites.characterLeft.anchor.x = 0.5;
-  sprites.characterLeft.anchor.y = 1;
-
-  app.stage.addChild(sprites.characterRight);
 
   return sprites;
 }
@@ -155,5 +197,6 @@ function generateInitialState() {
   return {
     wheel: new Wheel(),
     player: new Player(),
+    level: new Level(),
   };
 }

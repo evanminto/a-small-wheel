@@ -1,0 +1,14 @@
+{
+  "obstacles": [
+    {
+      "type": "pillar",
+      "size": "s",
+      "pos": 0.3
+    },
+    {
+      "type": "pillar",
+      "size": "s",
+      "pos": 0.9
+    }
+  ]
+}
