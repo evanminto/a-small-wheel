@@ -48,6 +48,9 @@ PIXI.loader
     rightKey.release = function() {
       if (leftKey.isUp) {
         state.wheel.stopRunning();
+      } else {
+        state.player.turnLeft();
+        state.wheel.runLeft();
       }
     };
 
@@ -59,6 +62,9 @@ PIXI.loader
     leftKey.release = function() {
       if (rightKey.isUp) {
         state.wheel.stopRunning();
+      } else {
+        state.player.turnRight();
+        state.wheel.runRight();
       }
     };
 
@@ -108,6 +114,17 @@ PIXI.loader
       }
 
       sprites.character.y = characterBaseY - state.player.jumpPosition;
+
+      sprites.obstacles.forEach((obstacle) => {
+        const rotationDelta = Math.abs(obstacle.rotation + sprites.wheel.rotation);
+        console.log(rotationDelta);
+
+        if (rotationDelta > Math.PI) {
+          obstacle.visible = false;
+        } else {
+          obstacle.visible = true;
+        }
+      });
     });
   });
 
@@ -160,7 +177,9 @@ function generateSprites(state, resources) {
     }
 
     return sprite;
-  })
+  });
+
+  sprites.obstacles = obstacleSprites;
 
   obstacleSprites.forEach((obstacle) => {
     sprites.wheel.addChild(obstacle);
@@ -187,7 +206,6 @@ function generateSprites(state, resources) {
 
   app.stage.addChild(sprites.wheel);
   app.stage.addChild(sprites.character);
-
 
 
   return sprites;

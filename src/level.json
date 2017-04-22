@@ -3,12 +3,32 @@
     {
       "type": "pillar",
       "size": "s",
-      "pos": 0.3
+      "pos": 0.4
     },
     {
       "type": "pillar",
       "size": "s",
-      "pos": 0.9
+      "pos": 1
+    },
+    {
+      "type": "pillar",
+      "size": "s",
+      "pos": 1.6
+    },
+    {
+      "type": "pillar",
+      "size": "s",
+      "pos": 4
+    },
+    {
+      "type": "pillar",
+      "size": "s",
+      "pos": 4.5
+    },
+    {
+      "type": "pillar",
+      "size": "s",
+      "pos": 5
     }
   ]
 }

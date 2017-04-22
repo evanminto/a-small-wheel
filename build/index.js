@@ -223,7 +223,7 @@ class Key {
   }
 }
 
-var obstacles = [{"type":"pillar","size":"s","pos":0.3},{"type":"pillar","size":"s","pos":0.9}];
+var obstacles = [{"type":"pillar","size":"s","pos":0.4},{"type":"pillar","size":"s","pos":1},{"type":"pillar","size":"s","pos":1.6},{"type":"pillar","size":"s","pos":4},{"type":"pillar","size":"s","pos":4.5},{"type":"pillar","size":"s","pos":5}];
 var levelConfig = {
 	obstacles: obstacles
 };
@@ -271,6 +271,9 @@ class Level {
   }
 }
 
+// The application will create a renderer using WebGL, if possible,
+// with a fallback to a canvas render. It will also setup the ticker
+// and the root stage PIXI.Container.
 const app = new PIXI.Application();
 
 // The application will create a canvas element for you that you
@@ -311,6 +314,9 @@ PIXI.loader
     rightKey.release = function() {
       if (leftKey.isUp) {
         state.wheel.stopRunning();
+      } else {
+        state.player.turnLeft();
+        state.wheel.runLeft();
       }
     };
 
@@ -322,6 +328,9 @@ PIXI.loader
     leftKey.release = function() {
       if (rightKey.isUp) {
         state.wheel.stopRunning();
+      } else {
+        state.player.turnRight();
+        state.wheel.runRight();
       }
     };
 
@@ -371,6 +380,17 @@ PIXI.loader
       }
 
       sprites.character.y = characterBaseY - state.player.jumpPosition;
+
+      sprites.obstacles.forEach((obstacle) => {
+        const rotationDelta = Math.abs(obstacle.rotation + sprites.wheel.rotation);
+        console.log(rotationDelta);
+
+        if (rotationDelta > Math.PI) {
+          obstacle.visible = false;
+        } else {
+          obstacle.visible = true;
+        }
+      });
     });
   });
 
@@ -425,6 +445,8 @@ function generateSprites(state, resources) {
     return sprite;
   });
 
+  sprites.obstacles = obstacleSprites;
+
   obstacleSprites.forEach((obstacle) => {
     sprites.wheel.addChild(obstacle);
   });
@@ -450,7 +472,6 @@ function generateSprites(state, resources) {
 
   app.stage.addChild(sprites.wheel);
   app.stage.addChild(sprites.character);
-
 
 
   return sprites;
