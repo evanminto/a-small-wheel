@@ -4,10 +4,10 @@ const DIRECTION_NONE = Symbol('none');
 const DIRECTION_RIGHT = Symbol('right');
 const DIRECTION_LEFT = Symbol('left');
 
-const maxVelocity = 0.075;
-const dampingGround = 0.8;
+const maxVelocity = 0.06;
+const dampingGround = 0.85;
 const dampingMidair = 0.98;
-const runAcceleration = 0.008;
+const runAcceleration = 0.0125;
 
 export default class Wheel {
   constructor() {
@@ -36,21 +36,29 @@ export default class Wheel {
 
   blockRight() {
     if (this.direction === DIRECTION_RIGHT) {
-      this.direction = DIRECTION_NONE;
-      this.acceleration = 0;
-      this.velocity = 0;
-      this.runningPaused = false;
+      // this.direction = DIRECTION_NONE;
+      // this.acceleration = 0;
+      // this.velocity = 0;
+      // this.runningPaused = false;
       this.blockedRight = true;
+    }
+
+    if (this.velocity > 0) {
+      this.velocity = 0;
     }
   }
 
   blockLeft() {
     if (this.direction === DIRECTION_LEFT) {
-      this.direction = DIRECTION_NONE;
-      this.acceleration = 0;
-      this.velocity = 0;
-      this.runningPaused = false;
+      // this.direction = DIRECTION_NONE;
+      // this.acceleration = 0;
+      // this.velocity = 0;
+      // this.runningPaused = false;
       this.blockedLeft = true;
+    }
+
+    if (this.velocity < 0) {
+      this.velocity = 0;
     }
   }
 

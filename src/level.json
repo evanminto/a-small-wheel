@@ -15,6 +15,7 @@
       "size": "s",
       "pos": 1.6
     },
+
     {
       "type": "pillar",
       "size": "s",
@@ -23,12 +24,54 @@
     {
       "type": "pillar",
       "size": "s",
-      "pos": 4.5
+      "pos": 4.4
     },
     {
       "type": "pillar",
       "size": "s",
-      "pos": 5
+      "pos": 4.8
+    },
+
+    {
+      "type": "pillar",
+      "size": "s",
+      "pos": 7
+    },
+    {
+      "type": "pillar",
+      "size": "s",
+      "pos": 7.5
+    },
+    {
+      "type": "pillar",
+      "size": "m",
+      "pos": 8
+    },
+    {
+      "type": "pillar",
+      "size": "m",
+      "pos": 8.5
+    },
+
+    {
+      "type": "pillar",
+      "size": "s",
+      "pos": 10.5
+    },
+    {
+      "type": "pillar",
+      "size": "m",
+      "pos": 10.8
+    },
+    {
+      "type": "pillar",
+      "size": "l",
+      "pos": 11.1
+    },
+    {
+      "type": "pillar",
+      "size": "m",
+      "pos": 11.2
     }
   ]
 }
