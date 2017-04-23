@@ -109,15 +109,15 @@
     },
     {
       "pos": 8.25,
-      "height": 40
+      "height": 50
     },
     {
       "pos": 11.2,
-      "height": 100
+      "height": 80
     },
     {
       "pos": 13.5,
-      "height": 150
+      "height": 120
     }
   ]
 }

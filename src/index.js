@@ -40,10 +40,11 @@ let thingsToLoad = [
   '../assets/images/wheel.png',
   '../assets/images/wheelShadow.png',
   '../assets/images/wheelAxle.png',
-  '../assets/images/characterRight.png',
-  '../assets/images/characterLeft.png',
-  '../assets/images/obstacleTemp.jpg',
-  '../assets/images/carrot.png',
+  '../assets/images/hamsterNeutral.png',
+  '../assets/images/pillarSmall.png',
+  '../assets/images/pillarMedium.png',
+  '../assets/images/pillarLarge.png',
+  '../assets/images/carrot2.png',
 ];
 
 //Initialize Hexi with the `hexi` function. It has 5 arguments,
@@ -233,7 +234,7 @@ function play() {
 
   // Update view
   sprites.obstacles.forEach((obstacle) => {
-    const rotationDelta = obstacle.rotation + sprites.wheel.rotation;
+    const rotationDelta = obstacle.parent.rotation + sprites.wheel.rotation;
 
     if (Math.abs(rotationDelta) > Math.PI) {
       obstacle.visible = false;
@@ -243,6 +244,11 @@ function play() {
 
     if (Math.abs(rotationDelta) <= 0.3) {
       if (state.player.jumpPosition < obstacle.height) {
+        if (Math.abs(rotationDelta) <= 0.2) {
+          state.player.blockFall();
+          state.wheel.continueRunning();
+        }
+
         if (rotationDelta > 0) {
           state.wheel.blockLeft();
         } else {
@@ -256,7 +262,7 @@ function play() {
   });
 
   sprites.carrots.forEach((carrot) => {
-    const rotationDelta = carrot.rotation + sprites.wheel.rotation;
+    const rotationDelta = carrot.parent.rotation + sprites.wheel.rotation;
 
     if (Math.abs(rotationDelta) > Math.PI) {
       carrot.visible = false;
@@ -378,8 +384,9 @@ function generateSprites(state) {
   sprites.wheelOverlays.addChild(wheelAxle);
 
   wheelAxle.height = 480;
-  wheelAxle.width = 480;
-  wheelAxle.anchor.y = 0.2725;
+  wheelAxle.width = 0.2433 * 480;
+  wheelAxle.anchor.y = 0.38;
+  wheelAxle.anchor.x = -1.56;
 
 
   const characterFloor = center.y + baseWheel.height / 2 - 50;
@@ -389,82 +396,117 @@ function generateSprites(state) {
 
   const obstacles = state.level.getAllObstacles();
   const obstacleSprites = obstacles.map((obstacle) => {
-    const sprite = g.sprite('../assets/images/ObstacleTemp.jpg');
+    const container = g.group();
+
+    let sprite;
 
     if (obstacle.isPillar()) {
-      sprite.x = baseWheel.width / 2;
-      sprite.y = baseWheel.height / 2;
-
       if (obstacle.isSmall()) {
+        sprite = g.sprite('../assets/images/pillarSmall.png');
         sprite.width = 40;
-        sprite.height = 30;
+        sprite.height = 25;
       } else if (obstacle.isMedium()) {
+        sprite = g.sprite('../assets/images/pillarMedium.png');
         sprite.width = 40;
-        sprite.height = 80;
+        sprite.height = 70;
       } else if (obstacle.isLarge()) {
+        sprite = g.sprite('../assets/images/pillarLarge.png');
         sprite.width = 40;
-        sprite.height = 130;
+        sprite.height = 110;
       }
-      sprite.pivot.x = 100; // TODO: What the heck?
-      sprite.pivot.y = -100 * (baseWheel.height - sprite.height * 2 - 50) / sprite.height;
-      sprite.rotation = -obstacle.getRadianPosition();
+      sprite.pivot.x = 20;
+
+      sprite.x = 222.5;
+      sprite.y = 480 - sprite.height - 20;
     }
 
     sprite.model = obstacle;
+
+    container.height = baseWheel.height;
+    container.width = baseWheel.width;
+
+    container.pivot.x = baseWheel.halfWidth;
+    container.pivot.y = baseWheel.halfHeight;
+
+    container.x = baseWheel.halfWidth;
+    container.y = baseWheel.halfHeight;
+
+    container.rotation = -obstacle.getRadianPosition();
+
+    container.addChild(sprite);
+    sprites.wheel.addChild(container);
 
     return sprite;
   });
 
   sprites.obstacles = obstacleSprites;
 
-  obstacleSprites.forEach((obstacle) => {
-    sprites.wheel.addChild(obstacle);
-  });
-
 
 
 
   const carrots = state.level.getAllCarrots();
   const carrotSprites = carrots.map((carrot) => {
-    const sprite = g.sprite('../assets/images/carrot.png');
-
-    sprite.x = baseWheel.width / 2;
-    sprite.y = baseWheel.height / 2;
+    const sprite = g.sprite('../assets/images/carrot2.png');
 
     sprite.width = 40;
     sprite.height = 40;
 
-    sprite.pivot.x = 50; // TODO: What the heck?
-    sprite.pivot.y = -100 * (baseWheel.height - sprite.height * 2 - 180 - carrot.height) / sprite.height;
-    sprite.rotation = -carrot.getRadianPosition();
+    sprite.pivot.x = 20;
+
+    sprite.x = 225;
+    sprite.y = 480 - 40 - 20 - carrot.height;
 
     sprite.model = carrot;
+
+    const container = g.group();
+
+    container.height = baseWheel.height;
+    container.width = baseWheel.width;
+
+    container.pivot.x = baseWheel.halfWidth;
+    container.pivot.y = baseWheel.halfHeight;
+
+    container.x = baseWheel.halfWidth;
+    container.y = baseWheel.halfHeight;
+
+    container.rotation = -carrot.getRadianPosition();
+
+    container.addChild(sprite);
+    sprites.wheel.addChild(container);
 
     return sprite;
   });
 
   sprites.carrots = carrotSprites;
 
-  carrotSprites.forEach((carrot) => {
-    sprites.wheel.addChild(carrot);
-  });
 
 
 
+  const characterRight = g.sprite('../assets/images/hamsterNeutral.png');
+  const characterLeft = g.sprite('../assets/images/hamsterNeutral.png');
 
-  const characterRight = g.sprite('../assets/images/characterRight.png');
-  const characterLeft = g.sprite('../assets/images/characterLeft.png');
-
+  characterLeft.scale.x *= -1;
   characterLeft.visible = false;
+
+  sprites.character.width = 50;
+  sprites.character.height = 50;
+  sprites.character.pivot.x = sprites.character.halfWidth;
+  sprites.character.pivot.y = sprites.character.halfHeight;
+
+  characterLeft.width = 50;
+  characterLeft.height = 50;
+  characterRight.width = 50;
+  characterRight.height = 50;
+  characterLeft.anchor.x = 0.5;
+  characterLeft.anchor.y = 0.5;
+  characterRight.anchor.x = 0.5;
+  characterRight.anchor.y = 0.5;
 
   sprites.character.addChild(characterLeft);
   sprites.character.addChild(characterRight);
 
   sprites.character.x = center.x;
   sprites.character.y = characterFloor;
-
-  sprites.character.pivot.x = characterRight.width / 2;
-  sprites.character.pivot.y = characterRight.height / 2;
 
 
 
@@ -475,7 +517,7 @@ function generateSprites(state) {
   sprites.carrotIndicator.pivot.x = 0;
   sprites.carrotIndicator.pivot.y = 0;
 
-  sprites.carrotIcon = g.sprite('../assets/images/carrot.png');
+  sprites.carrotIcon = g.sprite('../assets/images/carrot2.png');
   sprites.carrotIcon.width = 30;
   sprites.carrotIcon.height = 30;
   sprites.carrotIcon.x = 0;
