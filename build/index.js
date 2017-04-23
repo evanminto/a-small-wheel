@@ -68,7 +68,7 @@ const DIRECTION_RIGHT = Symbol('right');
 const DIRECTION_LEFT = Symbol('left');
 
 const maxVelocity = 0.06;
-const dampingGround = 0.9;
+const dampingGround = 0.75;
 const dampingMidair = 0.98;
 const runAcceleration = 0.008;
 
@@ -303,7 +303,7 @@ class Player {
   }
 }
 
-var loopPos = "14";
+var loopPos = "16";
 var obstacles = [{"type":"pillar","size":"s","pos":1},{"type":"pillar","size":"s","pos":1.6},{"type":"pillar","size":"s","pos":2.2},{"type":"pillar","size":"s","pos":4},{"type":"pillar","size":"s","pos":4.4},{"type":"pillar","size":"s","pos":4.8},{"type":"pillar","size":"s","pos":7},{"type":"pillar","size":"s","pos":7.5},{"type":"pillar","size":"m","pos":8},{"type":"pillar","size":"m","pos":8.5},{"type":"pillar","size":"s","pos":10.5},{"type":"pillar","size":"m","pos":10.8},{"type":"pillar","size":"l","pos":11.1},{"type":"pillar","size":"m","pos":11.2},{"type":"pillar","size":"m","pos":12.5},{"type":"pillar","size":"l","pos":12.8},{"type":"pillar","size":"m","pos":12.9},{"type":"pillar","size":"l","pos":13.5}];
 var carrots = [{"pos":0.4,"height":0},{"pos":3.2,"height":0},{"pos":8.25,"height":40},{"pos":11.2,"height":100},{"pos":13.5,"height":150}];
 var levelConfig = {
@@ -421,8 +421,42 @@ class Level {
   }
 }
 
+/*
+Hexi Quick Start
+================
+
+This is a quick tour of all the most important things you need to
+know to set up and start using Hexi. Use this same model
+for structuring your own applications and games. Thanks
+to Hexi's streamlined, modular design, you can create a complex interactive
+application like this in less than 50 lines of compact and readable code.
+
+Hexi's Application Architecture is made up of four main parts:
+
+1. Setting up and starting Hexi.
+2. The `load` function, that will run while your files are loading.
+3. The `setup` function, which initializes your game objects, variables and sprites.
+4. The `play` function, which is your game or application logic that runs in a loop.
+
+This simple model is all you need to create any kind of game or application.
+You can use it as the starting template for your own projects, and this same
+basic model can scale to any size.
+Take a look at the code ahead to see how it all works.
+*/
+
+/*
+1. Setting up and starting Hexi
+-------------------------------
+*/
+
+//Create an array of files you want to load. If you don't need to load
+//any files, you can leave this out. Hexi lets you load a wide variety
+//of files: images, texture atlases, bitmap fonts, ordinary font files, and
+//sounds
 let thingsToLoad = [
-  '../assets/images/wheel.jpg',
+  '../assets/images/wheel.png',
+  '../assets/images/wheelShadow.png',
+  '../assets/images/wheelAxle.png',
   '../assets/images/characterRight.png',
   '../assets/images/characterLeft.png',
   '../assets/images/obstacleTemp.jpg',
@@ -583,6 +617,8 @@ function setup() {
     }
   };
 
+  g.backgroundColor = 0xf6ddc4;
+
 
   //Set the game state to play. This is very important! Whatever
   //function you assign to Hexi's `state` property will be run by
@@ -702,6 +738,7 @@ function generateSprites(state) {
   const sprites = {
     wheel: g.group(),
     character: g.group(),
+    wheelOverlays: g.group(),
     playScene: g.group(),
     playUi: g.group(),
     winScene: g.group(),
@@ -711,7 +748,7 @@ function generateSprites(state) {
 
 
 
-  const baseWheel = g.sprite('../assets/images/wheel.jpg');
+  const baseWheel = g.sprite('../assets/images/wheel.png');
 
   baseWheel.width = 480;
   baseWheel.height = 480;
@@ -725,6 +762,41 @@ function generateSprites(state) {
 
   sprites.wheel.addChild(baseWheel);
 
+
+
+  sprites.playScene.addChild(sprites.wheel);
+
+
+  sprites.wheelOverlays.width = baseWheel.width;
+  sprites.wheelOverlays.height = baseWheel.height;
+  sprites.wheelOverlays.x = center.x;
+  sprites.wheelOverlays.y = center.y;
+  sprites.wheelOverlays.pivot.x = baseWheel.width / 2;
+  sprites.wheelOverlays.pivot.y = baseWheel.height / 2;
+
+
+  sprites.playScene.addChild(sprites.wheelOverlays);
+
+
+  const wheelShadow = g.sprite('../assets/images/wheelShadow.png');
+
+  sprites.wheelOverlays.addChild(wheelShadow);
+
+  wheelShadow.width = 480;
+  wheelShadow.height = 480;
+  sprites.wheelOverlays.putCenter(wheelShadow);
+  wheelShadow.anchor.x = 0.5;
+  wheelShadow.anchor.y = 0.5;
+
+
+
+  const wheelAxle = g.sprite('../assets/images/wheelAxle.png');
+
+  sprites.wheelOverlays.addChild(wheelAxle);
+
+  wheelAxle.height = 480;
+  wheelAxle.width = 480;
+  wheelAxle.anchor.y = 0.2725;
 
 
   const characterFloor = center.y + baseWheel.height / 2 - 50;
@@ -836,7 +908,6 @@ function generateSprites(state) {
 
 
 
-  sprites.playScene.addChild(sprites.wheel);
   sprites.playScene.addChild(sprites.character);
   sprites.playScene.addChild(sprites.playUi);
 

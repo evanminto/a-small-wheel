@@ -37,7 +37,9 @@ Take a look at the code ahead to see how it all works.
 //of files: images, texture atlases, bitmap fonts, ordinary font files, and
 //sounds
 let thingsToLoad = [
-  '../assets/images/wheel.jpg',
+  '../assets/images/wheel.png',
+  '../assets/images/wheelShadow.png',
+  '../assets/images/wheelAxle.png',
   '../assets/images/characterRight.png',
   '../assets/images/characterLeft.png',
   '../assets/images/obstacleTemp.jpg',
@@ -198,6 +200,8 @@ function setup() {
     }
   }
 
+  g.backgroundColor = 0xf6ddc4;
+
 
   //Set the game state to play. This is very important! Whatever
   //function you assign to Hexi's `state` property will be run by
@@ -317,6 +321,7 @@ function generateSprites(state) {
   const sprites = {
     wheel: g.group(),
     character: g.group(),
+    wheelOverlays: g.group(),
     playScene: g.group(),
     playUi: g.group(),
     winScene: g.group(),
@@ -326,7 +331,7 @@ function generateSprites(state) {
 
 
 
-  const baseWheel = g.sprite('../assets/images/wheel.jpg');
+  const baseWheel = g.sprite('../assets/images/wheel.png');
 
   baseWheel.width = 480;
   baseWheel.height = 480;
@@ -340,6 +345,41 @@ function generateSprites(state) {
 
   sprites.wheel.addChild(baseWheel);
 
+
+
+  sprites.playScene.addChild(sprites.wheel);
+
+
+  sprites.wheelOverlays.width = baseWheel.width;
+  sprites.wheelOverlays.height = baseWheel.height;
+  sprites.wheelOverlays.x = center.x;
+  sprites.wheelOverlays.y = center.y;
+  sprites.wheelOverlays.pivot.x = baseWheel.width / 2;
+  sprites.wheelOverlays.pivot.y = baseWheel.height / 2;
+
+
+  sprites.playScene.addChild(sprites.wheelOverlays);
+
+
+  const wheelShadow = g.sprite('../assets/images/wheelShadow.png');
+
+  sprites.wheelOverlays.addChild(wheelShadow);
+
+  wheelShadow.width = 480;
+  wheelShadow.height = 480;
+  sprites.wheelOverlays.putCenter(wheelShadow);
+  wheelShadow.anchor.x = 0.5;
+  wheelShadow.anchor.y = 0.5;
+
+
+
+  const wheelAxle = g.sprite('../assets/images/wheelAxle.png');
+
+  sprites.wheelOverlays.addChild(wheelAxle);
+
+  wheelAxle.height = 480;
+  wheelAxle.width = 480;
+  wheelAxle.anchor.y = 0.2725;
 
 
   const characterFloor = center.y + baseWheel.height / 2 - 50;
@@ -451,7 +491,6 @@ function generateSprites(state) {
 
 
 
-  sprites.playScene.addChild(sprites.wheel);
   sprites.playScene.addChild(sprites.character);
   sprites.playScene.addChild(sprites.playUi);
 

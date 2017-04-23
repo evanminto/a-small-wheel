@@ -5,7 +5,7 @@ const DIRECTION_RIGHT = Symbol('right');
 const DIRECTION_LEFT = Symbol('left');
 
 const maxVelocity = 0.06;
-const dampingGround = 0.9;
+const dampingGround = 0.75;
 const dampingMidair = 0.98;
 const runAcceleration = 0.008;
 
