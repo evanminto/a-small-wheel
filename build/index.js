@@ -24,14 +24,60 @@ e.setBlendMode(t.blendMode),t.drawMode===h.default.DRAW_MODES.TRIANGLE_MESH?this
 //# sourceMappingURL=pixi.min.js.map
 
 class Vector {
+  static center(v1, v2) {
+    return v1.add(v2).multiply(0.5).normalize();
+  }
+
+  static difference(v1, v2) {
+    return v1.subtract(v2).normalize();
+  }
+
   constructor(x = 0, y = 0) {
     this.x = x;
     this.y = y;
   }
 
-  add(vector) {
-    this.x += vector.x;
-    this.y += vector.y;
+  getLength() {
+    return Math.sqrt(this.x ** 2 + this.y ** 2);
+  }
+
+  add(v) {
+    return new Vector(
+      this.x + v.x,
+      this.y + v.y
+    );
+  }
+
+  subtract(v) {
+    return this.add(v.invert());
+  }
+
+  multiply(scalar) {
+    return new Vector(
+      this.x * scalar,
+      this.y * scalar
+    );
+  }
+
+  invert() {
+    return new Vector(
+      -this.x,
+      -this.y
+    );
+  }
+
+  normalize() {
+    return new Vector(
+      Math.abs(this.x),
+      Math.abs(this.y)
+    );
+  }
+
+  clamp(vMin, vMax) {
+    return new Vector(
+      Math.max(vMin.x, Math.min(vMax.x, this.x)),
+      Math.max(vMin.y, Math.min(vMax.y, this.y))
+    );
   }
 
   clone() {
@@ -43,7 +89,7 @@ const DIRECTION_NONE = Symbol('none');
 const DIRECTION_RIGHT = Symbol('right');
 const DIRECTION_LEFT = Symbol('left');
 
-const maxVelocity = 0.09;
+const maxVelocity = 0.075;
 const dampingGround = 0.8;
 const dampingMidair = 0.98;
 const runAcceleration = 0.008;
@@ -52,21 +98,53 @@ class Wheel {
   constructor() {
     this.direction = DIRECTION_NONE;
     this.runningPaused = false;
+    this.blockedRight = false;
+    this.blockedLeft = false;
     this.rotation = 0;
     this.velocity = 0;
     this.acceleration = 0;
   }
 
   runRight() {
-    this.direction = DIRECTION_RIGHT;
-    this.acceleration += runAcceleration;
-    this.runningPaused = false;
+    if (!this.blockedRight) {
+      this.direction = DIRECTION_RIGHT;
+      this.acceleration += runAcceleration;
+      this.runningPaused = false;
+    }
   }
 
   runLeft() {
     this.direction = DIRECTION_LEFT;
     this.acceleration -= runAcceleration;
     this.runningPaused = false;
+  }
+
+  blockRight() {
+    if (this.direction === DIRECTION_RIGHT) {
+      this.direction = DIRECTION_NONE;
+      this.acceleration = 0;
+      this.velocity = 0;
+      this.runningPaused = false;
+      this.blockedRight = true;
+    }
+  }
+
+  blockLeft() {
+    if (this.direction === DIRECTION_LEFT) {
+      this.direction = DIRECTION_NONE;
+      this.acceleration = 0;
+      this.velocity = 0;
+      this.runningPaused = false;
+      this.blockedLeft = true;
+    }
+  }
+
+  unblockRight() {
+    this.blockedRight = false;
+  }
+
+  unblockLeft() {
+    this.blockedLeft = false;
   }
 
   stopRunning() {
@@ -96,6 +174,14 @@ class Wheel {
   }
 
   update() {
+    if (this.direction === DIRECTION_RIGHT && this.blockedRight) {
+      return;
+    }
+
+    if (this.direction === DIRECTION_LEFT && this.blockedLeft) {
+      return;
+    }
+
     this.velocity += this.acceleration;
 
     if (this.velocity > 0 && this.velocity >= maxVelocity) {
@@ -271,6 +357,76 @@ class Level {
   }
 }
 
+class Collision {
+  constructor(distance) {
+    this.top = false;
+    this.right = false;
+    this.bottom = false;
+    this.left = false;
+
+    let axis = distance.x >= distance.y ? 'horizontal' : 'vertical';
+    axis = 'horizontal';
+
+    if (axis === 'horizontal') {
+      this.right = distance.x < 0;
+      this.left = distance.x > 0;
+    } else if (axis === 'vertical') {
+      this.top = distance.y > 0;
+      this.bottom = distance.y < 0;
+    }
+  }
+}
+
+var Collisions = {
+  detectCircleRect(circle, rectangle) {
+    const rectBounds = calculateWorldBounds(rectangle);
+
+    const rectCenter = Vector.center(
+      Vector.center(rectBounds[0], rectBounds[1]),
+      Vector.center(rectBounds[2], rectBounds[3])
+    );
+
+    const circleCenter = new Vector(circle.x, circle.y);
+
+    const diff = circleCenter.subtract(rectCenter);
+
+    const halfExtent = new Vector(rectangle.width / 2, rectangle.height / 2);
+
+    const edgeDiff = diff.clamp(new Vector(0, 0), halfExtent);
+    const edgePoint = rectCenter.add(edgeDiff);
+    const edgeDistance = circleCenter.subtract(edgePoint);
+
+    if (edgeDistance.getLength() <= circle.width / 2) {
+      return new Collision(edgeDistance);
+    }
+
+    return false;
+  }
+};
+
+function calculateWorldBounds(object) {
+  const bounds = object.getLocalBounds();
+  const wt = object.transform.worldTransform;
+  const tx = (wt.a * bounds.x) + (wt.c * bounds.y) + wt.tx;
+  const ty = (wt.b * bounds.x) + (wt.d * bounds.y) + wt.ty;
+
+  return [
+    new Vector(tx, ty),
+    new Vector(
+      (wt.a * bounds.width) + tx,
+      (wt.b * bounds.width) + ty
+    ),
+    new Vector(
+      (wt.a * bounds.width) + (wt.c * bounds.height) + tx,
+      (wt.d * bounds.height) + (wt.b * bounds.width) + ty
+    ),
+    new Vector(
+      (wt.c * bounds.height) + tx,
+      (wt.d * bounds.height) + ty
+    ),
+  ];
+}
+
 // The application will create a renderer using WebGL, if possible,
 // with a fallback to a canvas render. It will also setup the ticker
 // and the root stage PIXI.Container.
@@ -307,6 +463,10 @@ PIXI.loader
     const downKey = new Key(88);
 
     rightKey.press = function() {
+      if (state.player.isJumping()) {
+        return;
+      }
+
       state.player.turnRight();
       state.wheel.runRight();
     };
@@ -321,6 +481,10 @@ PIXI.loader
     };
 
     leftKey.press = function() {
+      if (state.player.isJumping()) {
+        return;
+      }
+
       state.player.turnLeft();
       state.wheel.runLeft();
     };
@@ -358,6 +522,31 @@ PIXI.loader
 
     // Listen for frame updates
     app.ticker.add(function() {
+
+      state.wheel.unblockRight();
+      state.wheel.unblockLeft();
+
+      // Update view
+      sprites.obstacles.forEach((obstacle) => {
+        const rotationDelta = Math.abs(obstacle.rotation + sprites.wheel.rotation);
+
+        if (rotationDelta > Math.PI) {
+          obstacle.visible = false;
+        } else {
+          obstacle.visible = true;
+        }
+
+        let collision = Collisions.detectCircleRect(sprites.character, obstacle);
+
+        if (collision.right) {
+          state.wheel.blockRight();
+        }
+
+        if (collision.left) {
+          state.wheel.blockLeft();
+        }
+      });
+
       // Update state
       state.wheel.update();
       state.player.update();
@@ -366,7 +555,6 @@ PIXI.loader
         state.wheel.continueRunning();
       }
 
-      // Update view
       sprites.wheel.rotation = state.wheel.rotation;
 
       let character;
@@ -380,17 +568,6 @@ PIXI.loader
       }
 
       sprites.character.y = characterBaseY - state.player.jumpPosition;
-
-      sprites.obstacles.forEach((obstacle) => {
-        const rotationDelta = Math.abs(obstacle.rotation + sprites.wheel.rotation);
-        console.log(rotationDelta);
-
-        if (rotationDelta > Math.PI) {
-          obstacle.visible = false;
-        } else {
-          obstacle.visible = true;
-        }
-      });
     });
   });
 
@@ -412,6 +589,8 @@ function generateSprites(state, resources) {
   baseWheel.width = 480;
   baseWheel.height = 480;
 
+  sprites.wheel.width = baseWheel.width;
+  sprites.wheel.height = baseWheel.height;
   sprites.wheel.x = center.x;
   sprites.wheel.y = center.y;
   sprites.wheel.pivot.x = baseWheel.width / 2;
@@ -421,7 +600,7 @@ function generateSprites(state, resources) {
 
 
 
-  const characterFloor = center.y + baseWheel.height / 2 - 20;
+  const characterFloor = center.y + baseWheel.height / 2 - 50;
 
 
 
@@ -434,10 +613,11 @@ function generateSprites(state, resources) {
       if (obstacle.isSmall()) {
         sprite.x = baseWheel.width / 2;
         sprite.y = baseWheel.height / 2;
+        console.log(baseWheel.width, baseWheel.height);
         sprite.width = 16;
         sprite.height = 40;
-        sprite.pivot.x = 8;
-        sprite.pivot.y = -baseWheel.height * 1.75;
+        sprite.pivot.x = 100; // TODO: What the heck?
+        sprite.pivot.y = -100 * (baseWheel.height - sprite.height * 2 - 30) / sprite.height;
         sprite.rotation = -obstacle.getRadianPosition();
       }
     }
@@ -465,8 +645,8 @@ function generateSprites(state, resources) {
   sprites.character.x = center.x;
   sprites.character.y = characterFloor;
 
-  sprites.character.pivot.x = characterRight.height / 2;
-  sprites.character.pivot.y = characterRight.height;
+  sprites.character.pivot.x = characterRight.width / 2;
+  sprites.character.pivot.y = characterRight.height / 2;
 
 
 

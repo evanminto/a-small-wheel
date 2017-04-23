@@ -4,6 +4,7 @@ import Player from './models/Player';
 import Vector from './models/Vector';
 import Key from './models/Key';
 import Level from './models/Level';
+import Collisions from './utilities/Collisions';
 
 // The application will create a renderer using WebGL, if possible,
 // with a fallback to a canvas render. It will also setup the ticker
@@ -41,6 +42,10 @@ PIXI.loader
     const downKey = new Key(88);
 
     rightKey.press = function() {
+      if (state.player.isJumping()) {
+        return;
+      }
+
       state.player.turnRight();
       state.wheel.runRight();
     };
@@ -55,6 +60,10 @@ PIXI.loader
     };
 
     leftKey.press = function() {
+      if (state.player.isJumping()) {
+        return;
+      }
+
       state.player.turnLeft();
       state.wheel.runLeft();
     };
@@ -92,6 +101,31 @@ PIXI.loader
 
     // Listen for frame updates
     app.ticker.add(function() {
+
+      state.wheel.unblockRight();
+      state.wheel.unblockLeft();
+
+      // Update view
+      sprites.obstacles.forEach((obstacle) => {
+        const rotationDelta = Math.abs(obstacle.rotation + sprites.wheel.rotation);
+
+        if (rotationDelta > Math.PI) {
+          obstacle.visible = false;
+        } else {
+          obstacle.visible = true;
+        }
+
+        let collision = Collisions.detectCircleRect(sprites.character, obstacle);
+
+        if (collision.right) {
+          state.wheel.blockRight();
+        }
+
+        if (collision.left) {
+          state.wheel.blockLeft();
+        }
+      });
+
       // Update state
       state.wheel.update();
       state.player.update();
@@ -100,7 +134,6 @@ PIXI.loader
         state.wheel.continueRunning();
       }
 
-      // Update view
       sprites.wheel.rotation = state.wheel.rotation;
 
       let character;
@@ -114,17 +147,6 @@ PIXI.loader
       }
 
       sprites.character.y = characterBaseY - state.player.jumpPosition;
-
-      sprites.obstacles.forEach((obstacle) => {
-        const rotationDelta = Math.abs(obstacle.rotation + sprites.wheel.rotation);
-        console.log(rotationDelta);
-
-        if (rotationDelta > Math.PI) {
-          obstacle.visible = false;
-        } else {
-          obstacle.visible = true;
-        }
-      });
     });
   });
 
@@ -146,6 +168,8 @@ function generateSprites(state, resources) {
   baseWheel.width = 480;
   baseWheel.height = 480;
 
+  sprites.wheel.width = baseWheel.width;
+  sprites.wheel.height = baseWheel.height;
   sprites.wheel.x = center.x;
   sprites.wheel.y = center.y;
   sprites.wheel.pivot.x = baseWheel.width / 2;
@@ -155,7 +179,7 @@ function generateSprites(state, resources) {
 
 
 
-  const characterFloor = center.y + baseWheel.height / 2 - 20;
+  const characterFloor = center.y + baseWheel.height / 2 - 50;
 
 
 
@@ -168,10 +192,11 @@ function generateSprites(state, resources) {
       if (obstacle.isSmall()) {
         sprite.x = baseWheel.width / 2;
         sprite.y = baseWheel.height / 2;
+        console.log(baseWheel.width, baseWheel.height);
         sprite.width = 16;
         sprite.height = 40;
-        sprite.pivot.x = 8;
-        sprite.pivot.y = -baseWheel.height * 1.75;
+        sprite.pivot.x = 100; // TODO: What the heck?
+        sprite.pivot.y = -100 * (baseWheel.height - sprite.height * 2 - 30) / sprite.height;
         sprite.rotation = -obstacle.getRadianPosition();
       }
     }
@@ -199,8 +224,8 @@ function generateSprites(state, resources) {
   sprites.character.x = center.x;
   sprites.character.y = characterFloor;
 
-  sprites.character.pivot.x = characterRight.height / 2;
-  sprites.character.pivot.y = characterRight.height;
+  sprites.character.pivot.x = characterRight.width / 2;
+  sprites.character.pivot.y = characterRight.height / 2;
 
 
 

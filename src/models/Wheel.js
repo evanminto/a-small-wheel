@@ -4,7 +4,7 @@ const DIRECTION_NONE = Symbol('none');
 const DIRECTION_RIGHT = Symbol('right');
 const DIRECTION_LEFT = Symbol('left');
 
-const maxVelocity = 0.09;
+const maxVelocity = 0.075;
 const dampingGround = 0.8;
 const dampingMidair = 0.98;
 const runAcceleration = 0.008;
@@ -13,21 +13,53 @@ export default class Wheel {
   constructor() {
     this.direction = DIRECTION_NONE;
     this.runningPaused = false;
+    this.blockedRight = false;
+    this.blockedLeft = false;
     this.rotation = 0;
     this.velocity = 0;
     this.acceleration = 0;
   }
 
   runRight() {
-    this.direction = DIRECTION_RIGHT;
-    this.acceleration += runAcceleration;
-    this.runningPaused = false;
+    if (!this.blockedRight) {
+      this.direction = DIRECTION_RIGHT;
+      this.acceleration += runAcceleration;
+      this.runningPaused = false;
+    }
   }
 
   runLeft() {
     this.direction = DIRECTION_LEFT;
     this.acceleration -= runAcceleration;
     this.runningPaused = false;
+  }
+
+  blockRight() {
+    if (this.direction === DIRECTION_RIGHT) {
+      this.direction = DIRECTION_NONE;
+      this.acceleration = 0;
+      this.velocity = 0;
+      this.runningPaused = false;
+      this.blockedRight = true;
+    }
+  }
+
+  blockLeft() {
+    if (this.direction === DIRECTION_LEFT) {
+      this.direction = DIRECTION_NONE;
+      this.acceleration = 0;
+      this.velocity = 0;
+      this.runningPaused = false;
+      this.blockedLeft = true;
+    }
+  }
+
+  unblockRight() {
+    this.blockedRight = false;
+  }
+
+  unblockLeft() {
+    this.blockedLeft = false;
   }
 
   stopRunning() {
@@ -57,6 +89,14 @@ export default class Wheel {
   }
 
   update() {
+    if (this.direction === DIRECTION_RIGHT && this.blockedRight) {
+      return;
+    }
+
+    if (this.direction === DIRECTION_LEFT && this.blockedLeft) {
+      return;
+    }
+
     this.velocity += this.acceleration;
 
     if (this.velocity > 0 && this.velocity >= maxVelocity) {
