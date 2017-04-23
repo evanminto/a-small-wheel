@@ -451,12 +451,14 @@ let thingsToLoad = [
   '../assets/images/wheel.png',
   '../assets/images/wheelShadow.png',
   '../assets/images/wheelAxle.png',
-  '../assets/images/hamsterNeutral.png',
+  '../assets/images/hamsterNeutral2.png',
   '../assets/images/pillarSmall.png',
   '../assets/images/pillarMedium.png',
   '../assets/images/pillarLarge.png',
   '../assets/images/carrot2.png',
   '../assets/images/logo.png',
+  '../assets/sounds/carrot.mp3',
+  '../assets/sounds/jump.mp3',
 ];
 
 //Initialize Hexi with the `hexi` function. It has 5 arguments,
@@ -554,6 +556,10 @@ function setup() {
   const spaceKey = g.keyboard(32);
 
   rightKey.press = function() {
+    if (g.paused) {
+      return;
+    }
+
     if (state.player.isJumping()) {
       return;
     }
@@ -572,6 +578,10 @@ function setup() {
   };
 
   leftKey.press = function() {
+    if (g.paused) {
+      return;
+    }
+
     if (state.player.isJumping()) {
       return;
     }
@@ -590,9 +600,16 @@ function setup() {
   };
 
   upKey.press = function() {
+    if (g.paused) {
+      return;
+    }
+
     if (state.player.canJump()) {
       state.player.jump();
       state.wheel.pauseRunning();
+
+      const sfx = g.sound('../assets/sounds/jump.mp3');
+      sfx.play();
     }
   };
 
@@ -609,8 +626,26 @@ function setup() {
   };
 
   spaceKey.press = () => {
+    if (g.paused) {
+      return;
+    }
+
     if (sprites.introScene.visible) {
       g.state = play;
+    } else if (sprites.playScene.visible) {
+      if (state.player.canJump()) {
+        state.player.jump();
+        state.wheel.pauseRunning();
+
+        const sfx = g.sound('../assets/sounds/jump.mp3');
+        sfx.play();
+      }
+    }
+  };
+
+  spaceKey.release = () => {
+    if (sprites.playScene.visible) {
+      state.player.stopJumping();
     }
   };
 
@@ -671,7 +706,7 @@ function play() {
         } else {
           state.wheel.blockRight();
         }
-      } else if (state.player.jumpPosition - sprites.character.height / 2.0 + 15 <= obstacle.height) {
+      } else if (state.player.jumpPosition - sprites.character.height / 2.0 + 10 <= obstacle.height) {
         state.player.blockFall();
         state.wheel.continueRunning();
       }
@@ -695,6 +730,9 @@ function play() {
       state.level.eatCarrot();
       carrot.model.eat();
       carrot.visible = false;
+
+      const sfx = g.sound('../assets/sounds/carrot.mp3');
+      sfx.play();
     }
   });
 
@@ -891,7 +929,7 @@ function generateSprites(state) {
       sprite.pivot.x = 20;
 
       sprite.x = 222.5;
-      sprite.y = 480 - sprite.height - 20;
+      sprite.y = 480 - sprite.height - 30;
     }
 
     sprite.model = obstacle;
@@ -956,21 +994,21 @@ function generateSprites(state) {
 
 
 
-  const characterRight = g.sprite('../assets/images/hamsterNeutral.png');
-  const characterLeft = g.sprite('../assets/images/hamsterNeutral.png');
+  const characterRight = g.sprite('../assets/images/hamsterNeutral2.png');
+  const characterLeft = g.sprite('../assets/images/hamsterNeutral2.png');
 
   characterLeft.scale.x *= -1;
   characterLeft.visible = false;
 
   sprites.character.width = 50;
-  sprites.character.height = 50;
+  sprites.character.height = 50 * 1;//0.73017903;
   sprites.character.pivot.x = sprites.character.halfWidth;
   sprites.character.pivot.y = sprites.character.halfHeight;
 
   characterLeft.width = 50;
-  characterLeft.height = 50;
+  characterLeft.height = 50 * 0.73017903;
   characterRight.width = 50;
-  characterRight.height = 50;
+  characterRight.height = 50 * 0.73017903;
   characterLeft.anchor.x = 0.5;
   characterLeft.anchor.y = 0.5;
   characterRight.anchor.x = 0.5;
