@@ -421,38 +421,32 @@ class Level {
   }
 }
 
-/*
-Hexi Quick Start
-================
+class Timer {
+  constructor() {
+    this.frames = 0;
+  }
 
-This is a quick tour of all the most important things you need to
-know to set up and start using Hexi. Use this same model
-for structuring your own applications and games. Thanks
-to Hexi's streamlined, modular design, you can create a complex interactive
-application like this in less than 50 lines of compact and readable code.
+  tick() {
+    this.frames++;
+  }
 
-Hexi's Application Architecture is made up of four main parts:
+  getMinutes() {
+    return Math.floor(1.0 * this.frames / (60 * 60));
+  }
 
-1. Setting up and starting Hexi.
-2. The `load` function, that will run while your files are loading.
-3. The `setup` function, which initializes your game objects, variables and sprites.
-4. The `play` function, which is your game or application logic that runs in a loop.
+  getSeconds() {
+    return Math.floor(1.0 * this.frames / 60) - this.getMinutes() * 60;
+  }
 
-This simple model is all you need to create any kind of game or application.
-You can use it as the starting template for your own projects, and this same
-basic model can scale to any size.
-Take a look at the code ahead to see how it all works.
-*/
+  getMilliseconds() {
+    return Math.floor(this.frames * 16.666667) - this.getSeconds() * 1000 - this.getMinutes() * 60 * 1000;
+  }
 
-/*
-1. Setting up and starting Hexi
--------------------------------
-*/
+  getTimerText() {
+    return `${this.getMinutes().toString().padStart(2, '0')}:${this.getSeconds().toString().padStart(2, '0')}.${this.getMilliseconds().toString().padStart(3, '0')}`
+  }
+}
 
-//Create an array of files you want to load. If you don't need to load
-//any files, you can leave this out. Hexi lets you load a wide variety
-//of files: images, texture atlases, bitmap fonts, ordinary font files, and
-//sounds
 let thingsToLoad = [
   '../assets/images/wheel.png',
   '../assets/images/wheelShadow.png',
@@ -462,6 +456,7 @@ let thingsToLoad = [
   '../assets/images/pillarMedium.png',
   '../assets/images/pillarLarge.png',
   '../assets/images/carrot2.png',
+  '../assets/images/logo.png',
 ];
 
 //Initialize Hexi with the `hexi` function. It has 5 arguments,
@@ -556,6 +551,7 @@ function setup() {
   const upKey = g.keyboard(87);
   const downKey = g.keyboard(88);
   const pauseKey = g.keyboard(27);
+  const spaceKey = g.keyboard(32);
 
   rightKey.press = function() {
     if (state.player.isJumping()) {
@@ -604,17 +600,17 @@ function setup() {
     state.player.stopJumping();
   };
 
-  downKey.press = function() {
-  };
-
-  downKey.release = function() {
-  };
-
   pauseKey.press = function() {
     if (g.paused) {
       g.resume();
     } else {
       g.pause();
+    }
+  };
+
+  spaceKey.press = () => {
+    if (sprites.introScene.visible) {
+      g.state = play;
     }
   };
 
@@ -624,7 +620,7 @@ function setup() {
   //Set the game state to play. This is very important! Whatever
   //function you assign to Hexi's `state` property will be run by
   //Hexi in a loop.
-  g.state = play;
+  g.state = intro;
 
 }
 
@@ -641,6 +637,10 @@ function setup() {
 //with the `pause` method, and restart it with the `resume` method
 
 function play() {
+  sprites.introScene.visible = false;
+  sprites.playScene.visible = true;
+
+  state.timer.tick();
   state.wheel.unblockRight();
   state.wheel.unblockLeft();
   state.player.unblockJump();
@@ -733,11 +733,18 @@ function play() {
   sprites.character.y = characterBaseY - state.player.jumpPosition;
 
   sprites.carrotCount.text = `${state.level.getCarrotTotal()}/${state.level.getCarrotGoal()}`;
+  sprites.timer.text = state.timer.getTimerText();
+}
+
+function intro() {
+  sprites.winTimer.text = 'Time: ' + state.timer.getTimerText();
 }
 
 function win() {
   sprites.playScene.visible = false;
   sprites.winScene.visible = true;
+
+  sprites.winTimer.text = 'Time: ' + state.timer.getTimerText();
 }
 
 function generateSprites(state) {
@@ -746,11 +753,61 @@ function generateSprites(state) {
     character: g.group(),
     wheelOverlays: g.group(),
     playScene: g.group(),
+    introScene: g.group(),
     playUi: g.group(),
     winScene: g.group(),
   };
 
+  const winMessage = g.text('You did it!', '30px Arial', 'orange');
+  sprites.winTimer = g.text('Time: ' + state.timer.getTimerText(), '20px Arial', 'brown');
+
+  sprites.winScene.addChild(winMessage);
+  winMessage.anchor.set(0.5, 0.5);
+  winMessage.x = center.x;
+  winMessage.y = center.y - 20;
+
+  sprites.winScene.addChild(sprites.winTimer);
+  sprites.winTimer.anchor.set(0.5, 0.5);
+  sprites.winTimer.x = center.x;
+  sprites.winTimer.y = center.y + 20;
+
   sprites.winScene.visible = false;
+
+
+
+
+
+
+
+
+
+  const startMessage = g.text('Press SPACE to Play', '30px Arial', 'brown');
+  startMessage.anchor.set(0.5, 0.5);
+  startMessage.x = center.x;
+  startMessage.y = center.y + 180;
+  sprites.introScene.addChild(startMessage);
+
+  const logoRatio = 0.79382797;
+  const logo = g.sprite('../assets/images/logo.png');
+  logo.anchor.set(0.5, 0.5);
+  logo.x = center.x;
+  logo.y = center.y - 60;
+  logo.width = 400;
+  logo.height = 400 * logoRatio;
+  sprites.introScene.addChild(logo);
+
+  sprites.introScene.visible = true;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -950,11 +1007,27 @@ function generateSprites(state) {
 
 
 
+  sprites.timer = g.text(state.timer.getTimerText(), "20px Arial", "brown");
+  sprites.timer.x = 20;
+  sprites.timer.y = 20;
+  sprites.timer.pivot.x = 0;
+  sprites.timer.pivot.y = 0;
+
+  sprites.playUi.addChild(sprites.timer);
+
+
+
+
   sprites.playScene.addChild(sprites.character);
   sprites.playScene.addChild(sprites.playUi);
 
   g.stage.addChild(sprites.playScene);
   g.stage.addChild(sprites.winScene);
+
+
+
+
+  sprites.playScene.visible = false;
 
 
   return sprites;
@@ -965,6 +1038,7 @@ function generateInitialState() {
     wheel: new Wheel(),
     player: new Player(),
     level: new Level(),
+    timer: new Timer(),
   };
 }
 

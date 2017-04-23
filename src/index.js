@@ -2,6 +2,7 @@ import Wheel from './models/Wheel';
 import Player from './models/Player';
 import Vector from './models/Vector';
 import Level from './models/Level';
+import Timer from './models/Timer';
 
 
 /*
@@ -45,6 +46,7 @@ let thingsToLoad = [
   '../assets/images/pillarMedium.png',
   '../assets/images/pillarLarge.png',
   '../assets/images/carrot2.png',
+  '../assets/images/logo.png',
 ];
 
 //Initialize Hexi with the `hexi` function. It has 5 arguments,
@@ -139,6 +141,7 @@ function setup() {
   const upKey = g.keyboard(87);
   const downKey = g.keyboard(88);
   const pauseKey = g.keyboard(27);
+  const spaceKey = g.keyboard(32);
 
   rightKey.press = function() {
     if (state.player.isJumping()) {
@@ -187,17 +190,17 @@ function setup() {
     state.player.stopJumping();
   };
 
-  downKey.press = function() {
-  };
-
-  downKey.release = function() {
-  };
-
   pauseKey.press = function() {
     if (g.paused) {
       g.resume();
     } else {
       g.pause();
+    }
+  }
+
+  spaceKey.press = () => {
+    if (sprites.introScene.visible) {
+      g.state = play;
     }
   }
 
@@ -207,7 +210,7 @@ function setup() {
   //Set the game state to play. This is very important! Whatever
   //function you assign to Hexi's `state` property will be run by
   //Hexi in a loop.
-  g.state = play;
+  g.state = intro;
 
 }
 
@@ -224,6 +227,10 @@ function setup() {
 //with the `pause` method, and restart it with the `resume` method
 
 function play() {
+  sprites.introScene.visible = false;
+  sprites.playScene.visible = true;
+
+  state.timer.tick();
   state.wheel.unblockRight();
   state.wheel.unblockLeft();
   state.player.unblockJump();
@@ -316,11 +323,18 @@ function play() {
   sprites.character.y = characterBaseY - state.player.jumpPosition;
 
   sprites.carrotCount.text = `${state.level.getCarrotTotal()}/${state.level.getCarrotGoal()}`;
+  sprites.timer.text = state.timer.getTimerText();
+}
+
+function intro() {
+  sprites.winTimer.text = 'Time: ' + state.timer.getTimerText();
 }
 
 function win() {
   sprites.playScene.visible = false;
   sprites.winScene.visible = true;
+
+  sprites.winTimer.text = 'Time: ' + state.timer.getTimerText();
 }
 
 function generateSprites(state) {
@@ -329,11 +343,61 @@ function generateSprites(state) {
     character: g.group(),
     wheelOverlays: g.group(),
     playScene: g.group(),
+    introScene: g.group(),
     playUi: g.group(),
     winScene: g.group(),
   };
 
+  const winMessage = g.text('You did it!', '30px Arial', 'orange');
+  sprites.winTimer = g.text('Time: ' + state.timer.getTimerText(), '20px Arial', 'brown');
+
+  sprites.winScene.addChild(winMessage);
+  winMessage.anchor.set(0.5, 0.5);
+  winMessage.x = center.x;
+  winMessage.y = center.y - 20;
+
+  sprites.winScene.addChild(sprites.winTimer);
+  sprites.winTimer.anchor.set(0.5, 0.5);
+  sprites.winTimer.x = center.x;
+  sprites.winTimer.y = center.y + 20;
+
   sprites.winScene.visible = false;
+
+
+
+
+
+
+
+
+
+  const startMessage = g.text('Press SPACE to Play', '30px Arial', 'brown');
+  startMessage.anchor.set(0.5, 0.5);
+  startMessage.x = center.x;
+  startMessage.y = center.y + 180;
+  sprites.introScene.addChild(startMessage);
+
+  const logoRatio = 0.79382797;
+  const logo = g.sprite('../assets/images/logo.png');
+  logo.anchor.set(0.5, 0.5);
+  logo.x = center.x;
+  logo.y = center.y - 60;
+  logo.width = 400;
+  logo.height = 400 * logoRatio;
+  sprites.introScene.addChild(logo);
+
+  sprites.introScene.visible = true;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -533,11 +597,27 @@ function generateSprites(state) {
 
 
 
+  sprites.timer = g.text(state.timer.getTimerText(), "20px Arial", "brown");
+  sprites.timer.x = 20;
+  sprites.timer.y = 20;
+  sprites.timer.pivot.x = 0;
+  sprites.timer.pivot.y = 0;
+
+  sprites.playUi.addChild(sprites.timer);
+
+
+
+
   sprites.playScene.addChild(sprites.character);
   sprites.playScene.addChild(sprites.playUi);
 
   g.stage.addChild(sprites.playScene);
   g.stage.addChild(sprites.winScene);
+
+
+
+
+  sprites.playScene.visible = false;
 
 
   return sprites;
@@ -548,5 +628,6 @@ function generateInitialState() {
     wheel: new Wheel(),
     player: new Player(),
     level: new Level(),
+    timer: new Timer(),
   };
 }
