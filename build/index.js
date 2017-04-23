@@ -68,7 +68,7 @@ const DIRECTION_RIGHT = Symbol('right');
 const DIRECTION_LEFT = Symbol('left');
 
 const maxVelocity = 0.06;
-const dampingGround = 0.85;
+const dampingGround = 0.9;
 const dampingMidair = 0.98;
 const runAcceleration = 0.008;
 
@@ -195,6 +195,7 @@ const DIRECTION_LEFT$1 = Symbol('left');
 
 const jumpGravityAcceleration = -0.5;
 const freefallGravityAcceleration = -1.2;
+const jumpInitialVelocity = 10;
 
 class Player {
   constructor() {
@@ -202,6 +203,7 @@ class Player {
     this.jumpPosition = 0;
     this.jumpVelocity = 0;
     this.jumpAcceleration = 0;
+    this.jumping = false;
     this.fallBlocked = false;
     this.jumpBlocked = false;
   }
@@ -227,10 +229,10 @@ class Player {
 
     if (this.jumpAcceleration < 0) {
       this.jumpAcceleration = 0;
+    }
 
-      if (this.jumpVelocity < 0) {
-        this.jumpVelocity = 0;
-      }
+    if (this.jumpVelocity < 0) {
+      this.jumpVelocity = 0;
     }
   }
 
@@ -246,7 +248,11 @@ class Player {
     this.fallBlocked = false;
 
     if (this.jumpPosition > 0) {
-      this.jumpAcceleration = freefallGravityAcceleration;
+      if (this.jumping) {
+        this.jumpAcceleration = jumpGravityAcceleration;
+      } else {
+        this.jumpAcceleration = freefallGravityAcceleration;
+      }
     }
   }
 
@@ -259,12 +265,13 @@ class Player {
   }
 
   jump() {
-    this.jumpVelocity = 11;
+    this.jumping = true;
+    this.jumpVelocity = jumpInitialVelocity;
     this.jumpAcceleration = jumpGravityAcceleration;
   }
 
   isJumping() {
-    return this.jumpAcceleration === jumpGravityAcceleration;
+    return this.jumping;
   }
 
   isFalling() {
@@ -272,6 +279,7 @@ class Player {
   }
 
   stopJumping() {
+    this.jumping = false;
     this.jumpAcceleration = freefallGravityAcceleration;
   }
 
@@ -295,9 +303,9 @@ class Player {
   }
 }
 
-var loopPos = "12";
-var obstacles = [{"type":"pillar","size":"s","pos":1},{"type":"pillar","size":"s","pos":1.6},{"type":"pillar","size":"s","pos":2.2},{"type":"pillar","size":"s","pos":4},{"type":"pillar","size":"s","pos":4.4},{"type":"pillar","size":"s","pos":4.8},{"type":"pillar","size":"s","pos":7},{"type":"pillar","size":"s","pos":7.5},{"type":"pillar","size":"m","pos":8},{"type":"pillar","size":"m","pos":8.5},{"type":"pillar","size":"s","pos":10.5},{"type":"pillar","size":"m","pos":10.8},{"type":"pillar","size":"l","pos":11.1},{"type":"pillar","size":"m","pos":11.2}];
-var carrots = [{"pos":0.4,"height":0},{"pos":3.2,"height":0},{"pos":8.25,"height":40}];
+var loopPos = "14";
+var obstacles = [{"type":"pillar","size":"s","pos":1},{"type":"pillar","size":"s","pos":1.6},{"type":"pillar","size":"s","pos":2.2},{"type":"pillar","size":"s","pos":4},{"type":"pillar","size":"s","pos":4.4},{"type":"pillar","size":"s","pos":4.8},{"type":"pillar","size":"s","pos":7},{"type":"pillar","size":"s","pos":7.5},{"type":"pillar","size":"m","pos":8},{"type":"pillar","size":"m","pos":8.5},{"type":"pillar","size":"s","pos":10.5},{"type":"pillar","size":"m","pos":10.8},{"type":"pillar","size":"l","pos":11.1},{"type":"pillar","size":"m","pos":11.2},{"type":"pillar","size":"m","pos":12.5},{"type":"pillar","size":"l","pos":12.8},{"type":"pillar","size":"m","pos":12.9},{"type":"pillar","size":"l","pos":13.5}];
+var carrots = [{"pos":0.4,"height":0},{"pos":3.2,"height":0},{"pos":8.25,"height":40},{"pos":11.2,"height":100},{"pos":13.5,"height":150}];
 var levelConfig = {
 	loopPos: loopPos,
 	obstacles: obstacles,
@@ -621,7 +629,7 @@ function play() {
         } else {
           state.wheel.blockRight();
         }
-      } else if (state.player.jumpPosition - sprites.character.height / 2.0 + 20 <= obstacle.height) {
+      } else if (state.player.jumpPosition - sprites.character.height / 2.0 + 15 <= obstacle.height) {
         state.player.blockFall();
         state.wheel.continueRunning();
       }
@@ -771,7 +779,7 @@ function generateSprites(state) {
     sprite.width = 40;
     sprite.height = 40;
 
-    sprite.pivot.x = 100; // TODO: What the heck?
+    sprite.pivot.x = 50; // TODO: What the heck?
     sprite.pivot.y = -100 * (baseWheel.height - sprite.height * 2 - 180 - carrot.height) / sprite.height;
     sprite.rotation = -carrot.getRadianPosition();
 

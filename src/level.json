@@ -1,5 +1,5 @@
 {
-  "loopPos": "12",
+  "loopPos": "14",
 
   "obstacles": [
     {
@@ -74,6 +74,27 @@
       "type": "pillar",
       "size": "m",
       "pos": 11.2
+    },
+
+    {
+      "type": "pillar",
+      "size": "m",
+      "pos": 12.5
+    },
+    {
+      "type": "pillar",
+      "size": "l",
+      "pos": 12.8
+    },
+    {
+      "type": "pillar",
+      "size": "m",
+      "pos": 12.9
+    },
+    {
+      "type": "pillar",
+      "size": "l",
+      "pos": 13.5
     }
   ],
 
@@ -89,6 +110,14 @@
     {
       "pos": 8.25,
       "height": 40
+    },
+    {
+      "pos": 11.2,
+      "height": 100
+    },
+    {
+      "pos": 13.5,
+      "height": 150
     }
   ]
 }

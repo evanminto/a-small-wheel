@@ -244,7 +244,7 @@ function play() {
         } else {
           state.wheel.blockRight();
         }
-      } else if (state.player.jumpPosition - sprites.character.height / 2.0 + 20 <= obstacle.height) {
+      } else if (state.player.jumpPosition - sprites.character.height / 2.0 + 15 <= obstacle.height) {
         state.player.blockFall();
         state.wheel.continueRunning();
       }
@@ -394,7 +394,7 @@ function generateSprites(state) {
     sprite.width = 40;
     sprite.height = 40;
 
-    sprite.pivot.x = 100; // TODO: What the heck?
+    sprite.pivot.x = 50; // TODO: What the heck?
     sprite.pivot.y = -100 * (baseWheel.height - sprite.height * 2 - 180 - carrot.height) / sprite.height;
     sprite.rotation = -carrot.getRadianPosition();
 

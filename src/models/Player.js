@@ -3,6 +3,7 @@ const DIRECTION_LEFT = Symbol('left');
 
 const jumpGravityAcceleration = -0.5;
 const freefallGravityAcceleration = -1.2;
+const jumpInitialVelocity = 10;
 
 export default class Player {
   constructor() {
@@ -10,6 +11,7 @@ export default class Player {
     this.jumpPosition = 0;
     this.jumpVelocity = 0;
     this.jumpAcceleration = 0;
+    this.jumping = false;
     this.fallBlocked = false;
     this.jumpBlocked = false;
   }
@@ -35,10 +37,10 @@ export default class Player {
 
     if (this.jumpAcceleration < 0) {
       this.jumpAcceleration = 0;
+    }
 
-      if (this.jumpVelocity < 0) {
-        this.jumpVelocity = 0;
-      }
+    if (this.jumpVelocity < 0) {
+      this.jumpVelocity = 0;
     }
   }
 
@@ -54,7 +56,11 @@ export default class Player {
     this.fallBlocked = false;
 
     if (this.jumpPosition > 0) {
-      this.jumpAcceleration = freefallGravityAcceleration;
+      if (this.jumping) {
+        this.jumpAcceleration = jumpGravityAcceleration;
+      } else {
+        this.jumpAcceleration = freefallGravityAcceleration;
+      }
     }
   }
 
@@ -67,12 +73,13 @@ export default class Player {
   }
 
   jump() {
-    this.jumpVelocity = 11;
+    this.jumping = true;
+    this.jumpVelocity = jumpInitialVelocity;
     this.jumpAcceleration = jumpGravityAcceleration;
   }
 
   isJumping() {
-    return this.jumpAcceleration === jumpGravityAcceleration;
+    return this.jumping;
   }
 
   isFalling() {
@@ -80,6 +87,7 @@ export default class Player {
   }
 
   stopJumping() {
+    this.jumping = false;
     this.jumpAcceleration = freefallGravityAcceleration;
   }
 
