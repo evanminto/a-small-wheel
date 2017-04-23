@@ -1,4 +1,6 @@
 {
+  "loopPos": "12",
+
   "obstacles": [
     {
       "type": "pillar",
@@ -79,6 +81,14 @@
     {
       "pos": 0.4,
       "height": 0
+    },
+    {
+      "pos": 3.2,
+      "height": 0
+    },
+    {
+      "pos": 8.25,
+      "height": 40
     }
   ]
 }

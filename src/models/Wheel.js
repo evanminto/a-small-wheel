@@ -7,7 +7,7 @@ const DIRECTION_LEFT = Symbol('left');
 const maxVelocity = 0.06;
 const dampingGround = 0.85;
 const dampingMidair = 0.98;
-const runAcceleration = 0.0125;
+const runAcceleration = 0.008;
 
 export default class Wheel {
   constructor() {

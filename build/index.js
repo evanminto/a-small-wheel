@@ -70,7 +70,7 @@ const DIRECTION_LEFT = Symbol('left');
 const maxVelocity = 0.06;
 const dampingGround = 0.85;
 const dampingMidair = 0.98;
-const runAcceleration = 0.0125;
+const runAcceleration = 0.008;
 
 class Wheel {
   constructor() {
@@ -295,9 +295,11 @@ class Player {
   }
 }
 
+var loopPos = "12";
 var obstacles = [{"type":"pillar","size":"s","pos":1},{"type":"pillar","size":"s","pos":1.6},{"type":"pillar","size":"s","pos":2.2},{"type":"pillar","size":"s","pos":4},{"type":"pillar","size":"s","pos":4.4},{"type":"pillar","size":"s","pos":4.8},{"type":"pillar","size":"s","pos":7},{"type":"pillar","size":"s","pos":7.5},{"type":"pillar","size":"m","pos":8},{"type":"pillar","size":"m","pos":8.5},{"type":"pillar","size":"s","pos":10.5},{"type":"pillar","size":"m","pos":10.8},{"type":"pillar","size":"l","pos":11.1},{"type":"pillar","size":"m","pos":11.2}];
-var carrots = [{"pos":0.4,"height":0}];
+var carrots = [{"pos":0.4,"height":0},{"pos":3.2,"height":0},{"pos":8.25,"height":40}];
 var levelConfig = {
+	loopPos: loopPos,
 	obstacles: obstacles,
 	carrots: carrots
 };
@@ -306,10 +308,30 @@ class Carrot {
   constructor({ position = 0, height = 0}) {
     this.position = position;
     this.height = height;
+    this.eaten = false;
+  }
+
+  eat() {
+    this.eaten = true;
   }
 
   getRadianPosition() {
     return this.position * Math.PI;
+  }
+}
+
+class CarrotTotal {
+  constructor(goal = 1) {
+    this.total = 0;
+    this.goal = goal;
+  }
+
+  increment() {
+    this.total++;
+  }
+
+  reachedGoal() {
+    return this.total >= this.goal;
   }
 }
 
@@ -343,6 +365,32 @@ class Obstacle {
 
 class Level {
   constructor() {
+    this.loopPosition = levelConfig.loopPos;
+    this.carrotTotal = new CarrotTotal(levelConfig.carrots.length);
+  }
+
+  isLoopPosition(rotation) {
+    return rotation > this.getLoopPosition();
+  }
+
+  getLoopPosition() {
+    return this.loopPosition * Math.PI;
+  }
+
+  eatCarrot() {
+    this.carrotTotal.increment();
+  }
+
+  isComplete() {
+    return this.carrotTotal.reachedGoal();
+  }
+
+  getCarrotGoal() {
+    return this.carrotTotal.goal;
+  }
+
+  getCarrotTotal() {
+    return this.carrotTotal.total;
   }
 
   getAllCarrots() {
@@ -464,6 +512,7 @@ function setup() {
   const leftKey = g.keyboard(65);
   const upKey = g.keyboard(87);
   const downKey = g.keyboard(88);
+  const pauseKey = g.keyboard(27);
 
   rightKey.press = function() {
     if (state.player.isJumping()) {
@@ -516,6 +565,14 @@ function setup() {
   };
 
   downKey.release = function() {
+  };
+
+  pauseKey.press = function() {
+    if (g.paused) {
+      g.resume();
+    } else {
+      g.pause();
+    }
   };
 
 
@@ -576,23 +633,31 @@ function play() {
 
     if (Math.abs(rotationDelta) > Math.PI) {
       carrot.visible = false;
-    } else {
+    } else if (!carrot.model.eaten) {
       carrot.visible = true;
     }
 
-    // if (Math.abs(rotationDelta) <= 0.3) {
-    //   if (state.player.jumpPosition < obstacle.height) {
-    //     if (rotationDelta > 0) {
-    //       state.wheel.blockLeft();
-    //     } else {
-    //       state.wheel.blockRight();
-    //     }
-    //   } else if (state.player.jumpPosition - sprites.character.height / 2.0 + 20 <= obstacle.height) {
-    //     state.player.blockFall();
-    //     state.wheel.continueRunning();
-    //   }
-    // }
+    if (
+      !carrot.model.eaten &&
+      Math.abs(rotationDelta) <= 0.3 &&
+      Math.abs(state.player.jumpPosition - carrot.model.height) <= sprites.character.width * 0.4
+    ) {
+      state.level.eatCarrot();
+      carrot.model.eat();
+      carrot.visible = false;
+    }
   });
+
+  if (state.level.isComplete()) {
+    g.state = win();
+  }
+
+  if (state.level.isLoopPosition(state.wheel.rotation)) {
+    state.wheel.rotation = -2 * Math.PI;
+  }
+  else if (state.wheel.rotation < -2 * Math.PI) {
+    state.wheel.rotation = state.level.getLoopPosition();
+  }
 
   // Update state
   state.wheel.update();
@@ -602,6 +667,7 @@ function play() {
     state.wheel.continueRunning();
   }
 
+  // Update graphics
   sprites.wheel.rotation = state.wheel.rotation;
 
   let character;
@@ -615,13 +681,25 @@ function play() {
   }
 
   sprites.character.y = characterBaseY - state.player.jumpPosition;
+
+  sprites.carrotCount.text = `${state.level.getCarrotTotal()}/${state.level.getCarrotGoal()}`;
+}
+
+function win() {
+  sprites.playScene.visible = false;
+  sprites.winScene.visible = true;
 }
 
 function generateSprites(state) {
   const sprites = {
     wheel: g.group(),
     character: g.group(),
+    playScene: g.group(),
+    playUi: g.group(),
+    winScene: g.group(),
   };
+
+  sprites.winScene.visible = false;
 
 
 
@@ -669,6 +747,8 @@ function generateSprites(state) {
       sprite.rotation = -obstacle.getRadianPosition();
     }
 
+    sprite.model = obstacle;
+
     return sprite;
   });
 
@@ -692,8 +772,10 @@ function generateSprites(state) {
     sprite.height = 40;
 
     sprite.pivot.x = 100; // TODO: What the heck?
-    sprite.pivot.y = -100 * (baseWheel.height - sprite.height * 2 - 180) / sprite.height;
+    sprite.pivot.y = -100 * (baseWheel.height - sprite.height * 2 - 180 - carrot.height) / sprite.height;
     sprite.rotation = -carrot.getRadianPosition();
+
+    sprite.model = carrot;
 
     return sprite;
   });
@@ -723,8 +805,35 @@ function generateSprites(state) {
 
 
 
-  g.stage.addChild(sprites.wheel);
-  g.stage.addChild(sprites.character);
+  sprites.carrotIndicator = g.group();
+
+  sprites.carrotIndicator.x = g.canvas.width - 50;
+  sprites.carrotIndicator.y = 20;
+  sprites.carrotIndicator.pivot.x = 0;
+  sprites.carrotIndicator.pivot.y = 0;
+
+  sprites.carrotIcon = g.sprite('../assets/images/carrot.png');
+  sprites.carrotIcon.width = 30;
+  sprites.carrotIcon.height = 30;
+  sprites.carrotIcon.x = 0;
+  sprites.carrotIcon.y = -5;
+  sprites.carrotIcon.anchor.x = 1;
+
+  sprites.carrotCount = g.text(`${state.level.getCarrotTotal()}/${state.level.getCarrotGoal()}`, "20px Arial", "orange");
+
+  sprites.carrotIndicator.addChild(sprites.carrotIcon);
+  sprites.carrotIndicator.addChild(sprites.carrotCount);
+  sprites.playUi.addChild(sprites.carrotIndicator);
+
+
+
+
+  sprites.playScene.addChild(sprites.wheel);
+  sprites.playScene.addChild(sprites.character);
+  sprites.playScene.addChild(sprites.playUi);
+
+  g.stage.addChild(sprites.playScene);
+  g.stage.addChild(sprites.winScene);
 
 
   return sprites;

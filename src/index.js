@@ -135,6 +135,7 @@ function setup() {
   const leftKey = g.keyboard(65);
   const upKey = g.keyboard(87);
   const downKey = g.keyboard(88);
+  const pauseKey = g.keyboard(27);
 
   rightKey.press = function() {
     if (state.player.isJumping()) {
@@ -188,6 +189,14 @@ function setup() {
 
   downKey.release = function() {
   };
+
+  pauseKey.press = function() {
+    if (g.paused) {
+      g.resume();
+    } else {
+      g.pause();
+    }
+  }
 
 
   //Set the game state to play. This is very important! Whatever
@@ -247,23 +256,31 @@ function play() {
 
     if (Math.abs(rotationDelta) > Math.PI) {
       carrot.visible = false;
-    } else {
+    } else if (!carrot.model.eaten) {
       carrot.visible = true;
     }
 
-    // if (Math.abs(rotationDelta) <= 0.3) {
-    //   if (state.player.jumpPosition < obstacle.height) {
-    //     if (rotationDelta > 0) {
-    //       state.wheel.blockLeft();
-    //     } else {
-    //       state.wheel.blockRight();
-    //     }
-    //   } else if (state.player.jumpPosition - sprites.character.height / 2.0 + 20 <= obstacle.height) {
-    //     state.player.blockFall();
-    //     state.wheel.continueRunning();
-    //   }
-    // }
+    if (
+      !carrot.model.eaten &&
+      Math.abs(rotationDelta) <= 0.3 &&
+      Math.abs(state.player.jumpPosition - carrot.model.height) <= sprites.character.width * 0.4
+    ) {
+      state.level.eatCarrot();
+      carrot.model.eat();
+      carrot.visible = false;
+    }
   });
+
+  if (state.level.isComplete()) {
+    g.state = win();
+  }
+
+  if (state.level.isLoopPosition(state.wheel.rotation)) {
+    state.wheel.rotation = -2 * Math.PI;
+  }
+  else if (state.wheel.rotation < -2 * Math.PI) {
+    state.wheel.rotation = state.level.getLoopPosition();
+  }
 
   // Update state
   state.wheel.update();
@@ -273,6 +290,7 @@ function play() {
     state.wheel.continueRunning();
   }
 
+  // Update graphics
   sprites.wheel.rotation = state.wheel.rotation;
 
   let character;
@@ -286,13 +304,25 @@ function play() {
   }
 
   sprites.character.y = characterBaseY - state.player.jumpPosition;
+
+  sprites.carrotCount.text = `${state.level.getCarrotTotal()}/${state.level.getCarrotGoal()}`;
+}
+
+function win() {
+  sprites.playScene.visible = false;
+  sprites.winScene.visible = true;
 }
 
 function generateSprites(state) {
   const sprites = {
     wheel: g.group(),
     character: g.group(),
+    playScene: g.group(),
+    playUi: g.group(),
+    winScene: g.group(),
   };
+
+  sprites.winScene.visible = false;
 
 
 
@@ -340,6 +370,8 @@ function generateSprites(state) {
       sprite.rotation = -obstacle.getRadianPosition();
     }
 
+    sprite.model = obstacle;
+
     return sprite;
   });
 
@@ -363,8 +395,10 @@ function generateSprites(state) {
     sprite.height = 40;
 
     sprite.pivot.x = 100; // TODO: What the heck?
-    sprite.pivot.y = -100 * (baseWheel.height - sprite.height * 2 - 180) / sprite.height;
+    sprite.pivot.y = -100 * (baseWheel.height - sprite.height * 2 - 180 - carrot.height) / sprite.height;
     sprite.rotation = -carrot.getRadianPosition();
+
+    sprite.model = carrot;
 
     return sprite;
   });
@@ -394,8 +428,35 @@ function generateSprites(state) {
 
 
 
-  g.stage.addChild(sprites.wheel);
-  g.stage.addChild(sprites.character);
+  sprites.carrotIndicator = g.group();
+
+  sprites.carrotIndicator.x = g.canvas.width - 50;
+  sprites.carrotIndicator.y = 20;
+  sprites.carrotIndicator.pivot.x = 0;
+  sprites.carrotIndicator.pivot.y = 0;
+
+  sprites.carrotIcon = g.sprite('../assets/images/carrot.png');
+  sprites.carrotIcon.width = 30;
+  sprites.carrotIcon.height = 30;
+  sprites.carrotIcon.x = 0;
+  sprites.carrotIcon.y = -5;
+  sprites.carrotIcon.anchor.x = 1;
+
+  sprites.carrotCount = g.text(`${state.level.getCarrotTotal()}/${state.level.getCarrotGoal()}`, "20px Arial", "orange");
+
+  sprites.carrotIndicator.addChild(sprites.carrotIcon);
+  sprites.carrotIndicator.addChild(sprites.carrotCount);
+  sprites.playUi.addChild(sprites.carrotIndicator);
+
+
+
+
+  sprites.playScene.addChild(sprites.wheel);
+  sprites.playScene.addChild(sprites.character);
+  sprites.playScene.addChild(sprites.playUi);
+
+  g.stage.addChild(sprites.playScene);
+  g.stage.addChild(sprites.winScene);
 
 
   return sprites;
