@@ -295,10 +295,23 @@ class Player {
   }
 }
 
-var obstacles = [{"type":"pillar","size":"s","pos":0.4},{"type":"pillar","size":"s","pos":1},{"type":"pillar","size":"s","pos":1.6},{"type":"pillar","size":"s","pos":4},{"type":"pillar","size":"s","pos":4.4},{"type":"pillar","size":"s","pos":4.8},{"type":"pillar","size":"s","pos":7},{"type":"pillar","size":"s","pos":7.5},{"type":"pillar","size":"m","pos":8},{"type":"pillar","size":"m","pos":8.5},{"type":"pillar","size":"s","pos":10.5},{"type":"pillar","size":"m","pos":10.8},{"type":"pillar","size":"l","pos":11.1},{"type":"pillar","size":"m","pos":11.2}];
+var obstacles = [{"type":"pillar","size":"s","pos":1},{"type":"pillar","size":"s","pos":1.6},{"type":"pillar","size":"s","pos":2.2},{"type":"pillar","size":"s","pos":4},{"type":"pillar","size":"s","pos":4.4},{"type":"pillar","size":"s","pos":4.8},{"type":"pillar","size":"s","pos":7},{"type":"pillar","size":"s","pos":7.5},{"type":"pillar","size":"m","pos":8},{"type":"pillar","size":"m","pos":8.5},{"type":"pillar","size":"s","pos":10.5},{"type":"pillar","size":"m","pos":10.8},{"type":"pillar","size":"l","pos":11.1},{"type":"pillar","size":"m","pos":11.2}];
+var carrots = [{"pos":0.4,"height":0}];
 var levelConfig = {
-	obstacles: obstacles
+	obstacles: obstacles,
+	carrots: carrots
 };
+
+class Carrot {
+  constructor({ position = 0, height = 0}) {
+    this.position = position;
+    this.height = height;
+  }
+
+  getRadianPosition() {
+    return this.position * Math.PI;
+  }
+}
 
 class Obstacle {
   constructor({ type, size, position }) {
@@ -332,6 +345,15 @@ class Level {
   constructor() {
   }
 
+  getAllCarrots() {
+    return levelConfig.carrots.map((config) => {
+      return new Carrot({
+        height: config.height,
+        position: config.pos,
+      });
+    });
+  }
+
   getAllObstacles() {
     return levelConfig.obstacles.map((config) => {
       return new Obstacle({
@@ -343,43 +365,12 @@ class Level {
   }
 }
 
-/*
-Hexi Quick Start
-================
-
-This is a quick tour of all the most important things you need to
-know to set up and start using Hexi. Use this same model
-for structuring your own applications and games. Thanks
-to Hexi's streamlined, modular design, you can create a complex interactive
-application like this in less than 50 lines of compact and readable code.
-
-Hexi's Application Architecture is made up of four main parts:
-
-1. Setting up and starting Hexi.
-2. The `load` function, that will run while your files are loading.
-3. The `setup` function, which initializes your game objects, variables and sprites.
-4. The `play` function, which is your game or application logic that runs in a loop.
-
-This simple model is all you need to create any kind of game or application.
-You can use it as the starting template for your own projects, and this same
-basic model can scale to any size.
-Take a look at the code ahead to see how it all works.
-*/
-
-/*
-1. Setting up and starting Hexi
--------------------------------
-*/
-
-//Create an array of files you want to load. If you don't need to load
-//any files, you can leave this out. Hexi lets you load a wide variety
-//of files: images, texture atlases, bitmap fonts, ordinary font files, and
-//sounds
 let thingsToLoad = [
   '../assets/images/wheel.jpg',
   '../assets/images/characterRight.png',
   '../assets/images/characterLeft.png',
   '../assets/images/obstacleTemp.jpg',
+  '../assets/images/carrot.png',
 ];
 
 //Initialize Hexi with the `hexi` function. It has 5 arguments,
@@ -557,21 +548,18 @@ function play() {
   }
 
   // Update view
-  // console.log(Math.abs(state.wheel.rotation + sprites.obstacles[0].rotation));
   sprites.obstacles.forEach((obstacle) => {
-    const rotationDelta = Math.abs(obstacle.rotation + sprites.wheel.rotation);
+    const rotationDelta = obstacle.rotation + sprites.wheel.rotation;
 
-    if (rotationDelta > Math.PI) {
+    if (Math.abs(rotationDelta) > Math.PI) {
       obstacle.visible = false;
     } else {
       obstacle.visible = true;
     }
 
-    const rotationDifference = state.wheel.rotation + obstacle.rotation;
-
-    if (Math.abs(rotationDifference) <= 0.3) {
+    if (Math.abs(rotationDelta) <= 0.3) {
       if (state.player.jumpPosition < obstacle.height) {
-        if (rotationDifference > 0) {
+        if (rotationDelta > 0) {
           state.wheel.blockLeft();
         } else {
           state.wheel.blockRight();
@@ -581,6 +569,29 @@ function play() {
         state.wheel.continueRunning();
       }
     }
+  });
+
+  sprites.carrots.forEach((carrot) => {
+    const rotationDelta = carrot.rotation + sprites.wheel.rotation;
+
+    if (Math.abs(rotationDelta) > Math.PI) {
+      carrot.visible = false;
+    } else {
+      carrot.visible = true;
+    }
+
+    // if (Math.abs(rotationDelta) <= 0.3) {
+    //   if (state.player.jumpPosition < obstacle.height) {
+    //     if (rotationDelta > 0) {
+    //       state.wheel.blockLeft();
+    //     } else {
+    //       state.wheel.blockRight();
+    //     }
+    //   } else if (state.player.jumpPosition - sprites.character.height / 2.0 + 20 <= obstacle.height) {
+    //     state.player.blockFall();
+    //     state.wheel.continueRunning();
+    //   }
+    // }
   });
 
   // Update state
@@ -665,6 +676,32 @@ function generateSprites(state) {
 
   obstacleSprites.forEach((obstacle) => {
     sprites.wheel.addChild(obstacle);
+  });
+
+
+
+
+  const carrots = state.level.getAllCarrots();
+  const carrotSprites = carrots.map((carrot) => {
+    const sprite = g.sprite('../assets/images/carrot.png');
+
+    sprite.x = baseWheel.width / 2;
+    sprite.y = baseWheel.height / 2;
+
+    sprite.width = 40;
+    sprite.height = 40;
+
+    sprite.pivot.x = 100; // TODO: What the heck?
+    sprite.pivot.y = -100 * (baseWheel.height - sprite.height * 2 - 180) / sprite.height;
+    sprite.rotation = -carrot.getRadianPosition();
+
+    return sprite;
+  });
+
+  sprites.carrots = carrotSprites;
+
+  carrotSprites.forEach((carrot) => {
+    sprites.wheel.addChild(carrot);
   });
 
 

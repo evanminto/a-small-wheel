@@ -3,17 +3,17 @@
     {
       "type": "pillar",
       "size": "s",
-      "pos": 0.4
-    },
-    {
-      "type": "pillar",
-      "size": "s",
       "pos": 1
     },
     {
       "type": "pillar",
       "size": "s",
       "pos": 1.6
+    },
+    {
+      "type": "pillar",
+      "size": "s",
+      "pos": 2.2
     },
 
     {
@@ -72,6 +72,13 @@
       "type": "pillar",
       "size": "m",
       "pos": 11.2
+    }
+  ],
+
+  "carrots": [
+    {
+      "pos": 0.4,
+      "height": 0
     }
   ]
 }

@@ -41,6 +41,7 @@ let thingsToLoad = [
   '../assets/images/characterRight.png',
   '../assets/images/characterLeft.png',
   '../assets/images/obstacleTemp.jpg',
+  '../assets/images/carrot.png',
 ];
 
 //Initialize Hexi with the `hexi` function. It has 5 arguments,
@@ -218,21 +219,18 @@ function play() {
   }
 
   // Update view
-  // console.log(Math.abs(state.wheel.rotation + sprites.obstacles[0].rotation));
   sprites.obstacles.forEach((obstacle) => {
-    const rotationDelta = Math.abs(obstacle.rotation + sprites.wheel.rotation);
+    const rotationDelta = obstacle.rotation + sprites.wheel.rotation;
 
-    if (rotationDelta > Math.PI) {
+    if (Math.abs(rotationDelta) > Math.PI) {
       obstacle.visible = false;
     } else {
       obstacle.visible = true;
     }
 
-    const rotationDifference = state.wheel.rotation + obstacle.rotation;
-
-    if (Math.abs(rotationDifference) <= 0.3) {
+    if (Math.abs(rotationDelta) <= 0.3) {
       if (state.player.jumpPosition < obstacle.height) {
-        if (rotationDifference > 0) {
+        if (rotationDelta > 0) {
           state.wheel.blockLeft();
         } else {
           state.wheel.blockRight();
@@ -242,6 +240,29 @@ function play() {
         state.wheel.continueRunning();
       }
     }
+  });
+
+  sprites.carrots.forEach((carrot) => {
+    const rotationDelta = carrot.rotation + sprites.wheel.rotation;
+
+    if (Math.abs(rotationDelta) > Math.PI) {
+      carrot.visible = false;
+    } else {
+      carrot.visible = true;
+    }
+
+    // if (Math.abs(rotationDelta) <= 0.3) {
+    //   if (state.player.jumpPosition < obstacle.height) {
+    //     if (rotationDelta > 0) {
+    //       state.wheel.blockLeft();
+    //     } else {
+    //       state.wheel.blockRight();
+    //     }
+    //   } else if (state.player.jumpPosition - sprites.character.height / 2.0 + 20 <= obstacle.height) {
+    //     state.player.blockFall();
+    //     state.wheel.continueRunning();
+    //   }
+    // }
   });
 
   // Update state
@@ -326,6 +347,32 @@ function generateSprites(state) {
 
   obstacleSprites.forEach((obstacle) => {
     sprites.wheel.addChild(obstacle);
+  });
+
+
+
+
+  const carrots = state.level.getAllCarrots();
+  const carrotSprites = carrots.map((carrot) => {
+    const sprite = g.sprite('../assets/images/carrot.png');
+
+    sprite.x = baseWheel.width / 2;
+    sprite.y = baseWheel.height / 2;
+
+    sprite.width = 40;
+    sprite.height = 40;
+
+    sprite.pivot.x = 100; // TODO: What the heck?
+    sprite.pivot.y = -100 * (baseWheel.height - sprite.height * 2 - 180) / sprite.height;
+    sprite.rotation = -carrot.getRadianPosition();
+
+    return sprite;
+  });
+
+  sprites.carrots = carrotSprites;
+
+  carrotSprites.forEach((carrot) => {
+    sprites.wheel.addChild(carrot);
   });
 
 
