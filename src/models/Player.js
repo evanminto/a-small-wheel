@@ -3,7 +3,7 @@ const DIRECTION_LEFT = Symbol('left');
 
 const jumpGravityAcceleration = -0.5;
 const freefallGravityAcceleration = -1.2;
-const jumpInitialVelocity = 9;
+const jumpInitialVelocity = 8;
 
 export default class Player {
   constructor() {

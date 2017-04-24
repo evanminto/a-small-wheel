@@ -506,15 +506,15 @@ function generateSprites(state) {
       if (obstacle.isSmall()) {
         sprite = g.sprite('../assets/images/pillarSmall.png');
         sprite.width = 40;
-        sprite.height = 25;
+        sprite.height = 20;
       } else if (obstacle.isMedium()) {
         sprite = g.sprite('../assets/images/pillarMedium.png');
         sprite.width = 40;
-        sprite.height = 70;
+        sprite.height = 55;
       } else if (obstacle.isLarge()) {
         sprite = g.sprite('../assets/images/pillarLarge.png');
         sprite.width = 40;
-        sprite.height = 110;
+        sprite.height = 100;
       }
       sprite.pivot.x = 20;
 

@@ -68,7 +68,7 @@ const DIRECTION_RIGHT = Symbol('right');
 const DIRECTION_LEFT = Symbol('left');
 
 const maxVelocity = 0.06;
-const dampingGround = 0.75;
+const dampingGround = 0.65;
 const dampingMidair = 0.98;
 const runAcceleration = 0.008;
 
@@ -195,7 +195,7 @@ const DIRECTION_LEFT$1 = Symbol('left');
 
 const jumpGravityAcceleration = -0.5;
 const freefallGravityAcceleration = -1.2;
-const jumpInitialVelocity = 9;
+const jumpInitialVelocity = 8;
 
 class Player {
   constructor() {
@@ -303,9 +303,9 @@ class Player {
   }
 }
 
-var loopPos = "16";
-var obstacles = [{"type":"pillar","size":"s","pos":1},{"type":"pillar","size":"s","pos":1.6},{"type":"pillar","size":"s","pos":2.2},{"type":"pillar","size":"s","pos":4},{"type":"pillar","size":"s","pos":4.4},{"type":"pillar","size":"s","pos":4.8},{"type":"pillar","size":"s","pos":7},{"type":"pillar","size":"s","pos":7.5},{"type":"pillar","size":"m","pos":8},{"type":"pillar","size":"m","pos":8.5},{"type":"pillar","size":"s","pos":10.5},{"type":"pillar","size":"m","pos":10.8},{"type":"pillar","size":"l","pos":11.1},{"type":"pillar","size":"m","pos":11.2},{"type":"pillar","size":"m","pos":12.5},{"type":"pillar","size":"l","pos":12.8},{"type":"pillar","size":"m","pos":12.9},{"type":"pillar","size":"l","pos":13.5}];
-var carrots = [{"pos":0.4,"height":0},{"pos":3.2,"height":0},{"pos":8.25,"height":50},{"pos":11.2,"height":80},{"pos":13.5,"height":120}];
+var loopPos = "24";
+var obstacles = [{"type":"pillar","size":"s","pos":1.4},{"type":"pillar","size":"s","pos":3},{"type":"pillar","size":"s","pos":3.6},{"type":"pillar","size":"s","pos":4.2},{"type":"pillar","size":"m","pos":5.5},{"type":"pillar","size":"s","pos":6.8},{"type":"pillar","size":"m","pos":7.4},{"type":"pillar","size":"s","pos":8.5},{"type":"pillar","size":"m","pos":8.8},{"type":"pillar","size":"l","pos":9.1},{"type":"pillar","size":"s","pos":8.5},{"type":"pillar","size":"m","pos":8.8},{"type":"pillar","size":"l","pos":9.1},{"type":"pillar","size":"m","pos":9.2},{"type":"pillar","size":"s","pos":10.2},{"type":"pillar","size":"m","pos":10.7},{"type":"pillar","size":"l","pos":11.2},{"type":"pillar","size":"m","pos":11.3},{"type":"pillar","size":"m","pos":12.1},{"type":"pillar","size":"l","pos":12.2},{"type":"pillar","size":"m","pos":12.7},{"type":"pillar","size":"s","pos":13.2},{"type":"pillar","size":"s","pos":14.5},{"type":"pillar","size":"s","pos":14.8},{"type":"pillar","size":"s","pos":15.1},{"type":"pillar","size":"s","pos":16.2},{"type":"pillar","size":"m","pos":16.5},{"type":"pillar","size":"l","pos":16.8},{"type":"pillar","size":"m","pos":16.95},{"type":"pillar","size":"l","pos":17.1},{"type":"pillar","size":"m","pos":17.4},{"type":"pillar","size":"s","pos":17.7},{"type":"pillar","size":"s","pos":19},{"type":"pillar","size":"m","pos":19.25},{"type":"pillar","size":"l","pos":19.5},{"type":"pillar","size":"m","pos":19.75},{"type":"pillar","size":"l","pos":20},{"type":"pillar","size":"m","pos":20.25},{"type":"pillar","size":"l","pos":20.5},{"type":"pillar","size":"m","pos":20.75},{"type":"pillar","size":"l","pos":21},{"type":"pillar","size":"m","pos":21.25},{"type":"pillar","size":"s","pos":21.5}];
+var carrots = [{"pos":0.4,"height":0},{"pos":2,"height":0},{"pos":4.8,"height":60},{"pos":6,"height":0},{"pos":7.1,"height":100},{"pos":9.1,"height":110},{"pos":11.7,"height":125},{"pos":14.55,"height":0},{"pos":14.85,"height":0},{"pos":15.15,"height":0},{"pos":16.95,"height":60},{"pos":19.75,"height":125},{"pos":20.25,"height":60},{"pos":20.75,"height":125}];
 var levelConfig = {
 	loopPos: loopPos,
 	obstacles: obstacles,
@@ -916,15 +916,15 @@ function generateSprites(state) {
       if (obstacle.isSmall()) {
         sprite = g.sprite('../assets/images/pillarSmall.png');
         sprite.width = 40;
-        sprite.height = 25;
+        sprite.height = 20;
       } else if (obstacle.isMedium()) {
         sprite = g.sprite('../assets/images/pillarMedium.png');
         sprite.width = 40;
-        sprite.height = 70;
+        sprite.height = 55;
       } else if (obstacle.isLarge()) {
         sprite = g.sprite('../assets/images/pillarLarge.png');
         sprite.width = 40;
-        sprite.height = 110;
+        sprite.height = 100;
       }
       sprite.pivot.x = 20;
 
